@@ -1064,8 +1064,8 @@ button {
         rgba(255, 255, 255, 0.99) 100%);
     background-size: 300% 100%;
     background-position: 0% 50%;
-    -webkit-mask-image: url("/infinite1.png");
-    mask-image: url("/infinite1.png");
+    -webkit-mask-image: url("/infinite1.webp");
+    mask-image: url("/infinite1.webp");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-position: 0 0;

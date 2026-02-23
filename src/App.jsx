@@ -121,7 +121,7 @@ const processSteps = [
       RU: "Мы постоянно совершенствуем наши техники и процессы",
       AR: "نحن نعمل باستمرار على تطوير تقنياتنا وعملياتنا"
     },
-    image: "/1.png?v=2"
+    image: "/1.webp?v=2"
   },
   {
     id: "quality",
@@ -136,7 +136,7 @@ const processSteps = [
       RU: "Каждая работа проходит проверку по нашим строгим стандартам",
       AR: "كل عمل يخضع للفحص وفقًا لمعاييرنا الصارمة"
     },
-    image: "/2.png?v=2"
+    image: "/2.webp?v=2"
   },
   {
     id: "materials",
@@ -151,7 +151,7 @@ const processSteps = [
       RU: "Только сертифицированные продукты и оборудование высшего класса",
       AR: "فقط المنتجات والمعدات المعتمدة من الدرجة الأولى"
     },
-    image: "/3.png?v=2"
+    image: "/3.webp?v=2"
   },
   {
     id: "service",
@@ -166,7 +166,7 @@ const processSteps = [
       RU: "Деликатный, профессиональный сервис прямо у вашего порога",
       AR: "خدمة احترافية هادئة مباشرة عند بابك"
     },
-    image: "/4.png?v=2"
+    image: "/4.webp?v=2"
   }
 ];
 
@@ -528,8 +528,8 @@ const membershipCopy = {
 const certifiedBrands = [
   { name: "Koch Chemie", logo: "/koch.png" },
   { name: "Gyeon", logo: "/gyeon.png" },
-  { name: "Sonax", logo: "/sonax.png" },
-  { name: "Vonixx", logo: "/vonixx.png" }
+  { name: "Sonax", logo: "/sonax.webp" },
+  { name: "Vonixx", logo: "/vonixx.webp" }
 ];
 
 const trustLinks = {
@@ -564,6 +564,15 @@ const reviewsFallbackCopy = {
 
 const DEFAULT_HERO_VIDEO = "/videoplayback.mp4";
 const BACKUP_HERO_VIDEO = "/dubai.mp4";
+const CRITICAL_SERVICE_ASSETS = [
+  "/rolls1.webp",
+  "/rolls2.webp",
+  "/moto.webp",
+  "/concord.webp",
+  "/yacht.webp",
+  "/home.png",
+  "/questionmark.png"
+];
 
 function normalizeHeroVideoUrl(url) {
   if (typeof url !== "string") return "";
@@ -768,6 +777,15 @@ export default function App() {
     heroVideoFallbackChainRef.current = fallbackChain;
     setHeroVideoSrc(fallbackChain[0] || DEFAULT_HERO_VIDEO);
   }, [adminHeroVideo?.url]);
+
+  useEffect(() => {
+    // Warm up key service assets so cards render instantly when section appears.
+    CRITICAL_SERVICE_ASSETS.forEach((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, []);
 
   const handleHeroVideoError = () => {
     const fallbackChain = heroVideoFallbackChainRef.current;
@@ -1104,9 +1122,9 @@ export default function App() {
       "/tireBack.png",
       "/tireFrontar.png",
       "/tireBackar.png",
-      "/crown3d.png",
-      "/diamond3d.png",
-      "/cam3d.png",
+      "/crown3d.webp",
+      "/diamond3d.webp",
+      "/cam3d.webp",
       "/order3d.png",
       "/shield3d.png"
     ];
@@ -1492,7 +1510,7 @@ export default function App() {
         <div className="services-process-wrapper" style={{ position: "relative", overflow: "visible" }}>
           <img
             className="services-wheel"
-            src="/wheel.png"
+            src="/wheel.webp"
             alt=""
             aria-hidden="true"
           />
@@ -1618,9 +1636,9 @@ export default function App() {
                   <article key={plan.id} className="membership-card" data-plan={plan.id}>
                     <div className="membership-card-icon">
                       {plan.id === "auto" ? (
-                        <img src="/rolls1.png" alt="" loading="lazy" decoding="async" style={{ width: 100, opacity: 0.8 }} />
+                        <img src="/rolls1.webp" alt="" loading="lazy" decoding="async" style={{ width: 100, opacity: 0.8 }} />
                       ) : (
-                        <img src="/moto.png" alt="" loading="lazy" decoding="async" style={{ width: 90, opacity: 0.8 }} />
+                        <img src="/moto.webp" alt="" loading="lazy" decoding="async" style={{ width: 90, opacity: 0.8 }} />
                       )}
                     </div>
                     <h3 className="membership-card-title">{t(plan.title)}</h3>
@@ -1650,7 +1668,7 @@ export default function App() {
                 <div className="membership-infinity-group">
                   <img
                     className="membership-infinity-base"
-                    src="/infinite.png"
+                    src="/infinite.webp"
                     alt="Infinite Membership"
                   />
                   <span
