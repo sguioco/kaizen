@@ -4893,6 +4893,16 @@ body.y-widget-open {
     z-index: 4;
   }
 
+  .journey-mobile-van-end {
+    left: auto;
+    right: 0;
+  }
+
+  .journey-mobile-van-end.rtl {
+    right: auto;
+    left: 0;
+  }
+
   .journey-mobile-van .journey-van-img {
     width: 100%;
     height: auto;
@@ -4920,8 +4930,8 @@ body.y-widget-open {
     align-items: center;
     text-align: center;
     gap: 0.2rem;
-    opacity: 0;
-    transform: scale(0.78);
+    opacity: 1;
+    transform: scale(1);
     transform-origin: center center;
   }
 

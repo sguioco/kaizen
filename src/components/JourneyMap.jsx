@@ -11,8 +11,6 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
     const vanRef = useRef(null);
     const tireFrontRef = useRef(null);
     const tireBackRef = useRef(null);
-    const mobileTrackRef = useRef(null);
-    const mobileVanRef = useRef(null);
     const [isMobileLayout, setIsMobileLayout] = useState(false);
     const [isLowPerformance, setIsLowPerformance] = useState(false);
 
@@ -78,12 +76,24 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
 
     useEffect(() => {
         const section = sectionRef.current;
-        const track = isMobileLayout ? mobileTrackRef.current : trackRef.current;
-        const van = isMobileLayout ? mobileVanRef.current : vanRef.current;
+        const track = trackRef.current;
+        const van = vanRef.current;
         const tireFront = tireFrontRef.current;
         const tireBack = tireBackRef.current;
 
-        if (!section || !track || !van) {
+        if (!section) {
+            return undefined;
+        }
+
+        if (isMobileLayout) {
+            const mobileMilestones = section.querySelectorAll(".journey-mobile-milestone");
+            gsap.set(mobileMilestones, { opacity: 1, scale: 1, clearProps: "transform" });
+            return () => {
+                gsap.killTweensOf(mobileMilestones);
+            };
+        }
+
+        if (!track || !van) {
             return undefined;
         }
 
@@ -237,8 +247,8 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                     </div>
 
                     <div className={`journey-mobile-road-wrap ${isRTL ? "rtl" : ""}`}>
-                        <div ref={mobileTrackRef} className="track-container journey-mobile-track">
-                            <div ref={mobileVanRef} className="van-wrapper journey-mobile-van">
+                        <div className="track-container journey-mobile-track">
+                            <div className={`van-wrapper journey-mobile-van journey-mobile-van-end ${isRTL ? "rtl" : ""}`}>
                                 <img src={vanImage} alt="Kaizen Car" className="journey-van-img" loading="lazy" decoding="async" />
                             </div>
                         </div>
