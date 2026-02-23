@@ -724,6 +724,7 @@ export default function App() {
   const rootRef = useRef(null);
   const portfolioViewerRef = useRef(null);
   const portfolioMetaRef = useRef(null);
+  const trustSectionRef = useRef(null);
   const [language, setLanguage] = useState("EN");
 
   // Admin-managed data (falls back to hardcoded defaults)
@@ -754,6 +755,7 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [shouldLoadTrustWidgets, setShouldLoadTrustWidgets] = useState(false);
   const whatsappPhone = "971543720101";
   const whatsappMessageByLanguage = {
     EN: "Hi Kaizen Detailers! I would like to book mobile detailing in Dubai. Please help me choose the right package and nearest available time.",
@@ -775,6 +777,27 @@ export default function App() {
       setHeroVideoSrc(nextSrc);
     }
   };
+
+  useEffect(() => {
+    const trustSection = trustSectionRef.current;
+    if (!trustSection) {
+      setShouldLoadTrustWidgets(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldLoadTrustWidgets(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+
+    observer.observe(trustSection);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -1372,6 +1395,8 @@ export default function App() {
             muted
             loop
             playsInline
+            preload="metadata"
+            poster="/dubai.png"
             onError={handleHeroVideoError}
           />
           <div className="hero-overlay" />
@@ -1593,9 +1618,9 @@ export default function App() {
                   <article key={plan.id} className="membership-card" data-plan={plan.id}>
                     <div className="membership-card-icon">
                       {plan.id === "auto" ? (
-                        <img src="/rolls1.png" alt="" style={{ width: 100, opacity: 0.8 }} />
+                        <img src="/rolls1.png" alt="" loading="lazy" decoding="async" style={{ width: 100, opacity: 0.8 }} />
                       ) : (
-                        <img src="/moto.png" alt="" style={{ width: 90, opacity: 0.8 }} />
+                        <img src="/moto.png" alt="" loading="lazy" decoding="async" style={{ width: 90, opacity: 0.8 }} />
                       )}
                     </div>
                     <h3 className="membership-card-title">{t(plan.title)}</h3>
@@ -1712,7 +1737,7 @@ export default function App() {
           </section>
         ) : null}
 
-        <section className="section trust reveal-block" id="trust">
+        <section ref={trustSectionRef} className="section trust reveal-block" id="trust">
           <div className="trust-aurora" aria-hidden="true">
             <Aurora
               colorStops={["#121212", "#fa0000", "#0a0a0a"]}
@@ -1772,21 +1797,31 @@ export default function App() {
                   </a>
                 </h3>
                 <div className="social-body">
-                  {isGoogleReviewsReady ? (
+                  {shouldLoadTrustWidgets ? (
+                    isGoogleReviewsReady ? (
+                      <Suspense
+                        fallback={<ReviewsFallback message={t(uiCopy.widget.reviewsLoading)} />}
+                      >
+                        <ReactGoogleReviews
+                          layout="carousel"
+                          featurableId="featurable-b1506bd1-b1ca-442e-b4b1-95314643ba77"
+                          maxItems={5}
+                          carouselSpeed={3200}
+                        />
+                      </Suspense>
+                    ) : (
+                      <div className="widget-fallback widget-fallback-premium">
+                        {reviewsFallbackCopy[language] || reviewsFallbackCopy.EN}
+                      </div>
+                    )
+                  ) : (
                     <Suspense
                       fallback={<ReviewsFallback message={t(uiCopy.widget.reviewsLoading)} />}
                     >
-                      <ReactGoogleReviews
-                        layout="carousel"
-                        featurableId="featurable-b1506bd1-b1ca-442e-b4b1-95314643ba77"
-                        maxItems={5}
-                        carouselSpeed={3200}
+                      <ReviewsFallback
+                        message={reviewsFallbackCopy[language] || reviewsFallbackCopy.EN}
                       />
                     </Suspense>
-                  ) : (
-                    <div className="widget-fallback widget-fallback-premium">
-                      {reviewsFallbackCopy[language] || reviewsFallbackCopy.EN}
-                    </div>
                   )}
                 </div>
               </div>
@@ -1807,11 +1842,15 @@ export default function App() {
                   </a>
                 </h3>
                 <div className="social-body">
-                  <Suspense
-                    fallback={<BeholdFallback message={t(uiCopy.widget.beholdLoading)} />}
-                  >
-                    <BeholdWidget feedId="MB3EebWs3lODSKN5ljWY" />
-                  </Suspense>
+                  {shouldLoadTrustWidgets ? (
+                    <Suspense
+                      fallback={<BeholdFallback message={t(uiCopy.widget.beholdLoading)} />}
+                    >
+                      <BeholdWidget feedId="MB3EebWs3lODSKN5ljWY" />
+                    </Suspense>
+                  ) : (
+                    <BeholdFallback message={t(uiCopy.widget.beholdLoading)} />
+                  )}
                 </div>
               </div>
             </div>
@@ -1822,7 +1861,7 @@ export default function App() {
               <div className="brands-row">
                 {certifiedBrands.map((brand) => (
                   <div key={brand.name} className="brand-mark">
-                    <img src={brand.logo} alt={brand.name} />
+                    <img src={brand.logo} alt={brand.name} loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>
@@ -1850,7 +1889,7 @@ export default function App() {
           </div>
           <div className="coverage-bleed">
             <div className="coverage-map-stack">
-              <img className="coverage-map-base" src="/map.png" alt="" />
+              <img className="coverage-map-base" src="/map.png" alt="" loading="lazy" decoding="async" />
               <div className="coverage-zone zone-abu" />
               <div className="coverage-zone zone-dubai" />
               <div className="coverage-zone zone-sharjah" />
@@ -1884,7 +1923,7 @@ export default function App() {
       <footer className="footer" id="contact">
         <div className="footer-top">
           <div className="footer-top-brand">
-            <img src="/logo_white.svg" alt="Kaizen Detailers" />
+            <img src="/logo_white.svg" alt="Kaizen Detailers" loading="lazy" decoding="async" />
           </div>
           <p>
             {t(uiCopy.footer.text)}

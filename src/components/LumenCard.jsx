@@ -248,29 +248,33 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
         <div className="icon">
           {isAuto ? (
             <div className="auto-icon" aria-hidden="true">
-              <img className="auto-off service-img-auto" src="/rolls1.png" alt="" />
-              <img className="auto-on service-img-auto" src="/rolls2.png" alt="" />
+              <img className="auto-off service-img-auto" src="/rolls1.png" alt="" loading="lazy" decoding="async" />
+              <img className="auto-on service-img-auto" src="/rolls2.png" alt="" loading="lazy" decoding="async" />
             </div>
           ) : isSecret ? (
             <div className="service-img-icon" aria-hidden="true">
-              <img
-                src="/questionmark.png"
-                alt={title}
-                className="service-img service-img-secret"
-              />
+                <img
+                  src="/questionmark.png"
+                  alt={title}
+                  className="service-img service-img-secret"
+                  loading="lazy"
+                  decoding="async"
+                />
             </div>
           ) : ["moto", "motorhome", "yacht", "home"].includes(icon) ? (
             <div className="service-img-icon" aria-hidden="true">
-              <img
-                src={
-                  icon === "moto" ? "/moto.png" :
-                    icon === "motorhome" ? "/concord.png" :
-                      icon === "yacht" ? "/yacht.png" :
+                <img
+                  src={
+                    icon === "moto" ? "/moto.png" :
+                      icon === "motorhome" ? "/concord.png" :
+                        icon === "yacht" ? "/yacht.png" :
                         "/home.png"
-                }
-                alt={title}
-                className={`service-img service-img-${icon}`}
-              />
+                  }
+                  alt={title}
+                  className={`service-img service-img-${icon}`}
+                  loading="lazy"
+                  decoding="async"
+                />
             </div>
           ) : (
             <ServiceIcon type={icon} gradientId={`lumen-${icon}-${index}`} />

@@ -1,10 +1,7 @@
-const PRECACHE = "kaizen-precache-v3";
-const RUNTIME = "kaizen-runtime-v3";
+const PRECACHE = "kaizen-precache-v2";
+const RUNTIME = "kaizen-runtime-v2";
 
 const WARM_ASSETS = [
-  "/logo_white.svg",
-  "/UAEflag.webp",
-  "/dubai.png",
   "/keizenCAR.png",
   "/keizenCARar.png",
   "/tireBack.png",
@@ -15,7 +12,10 @@ const WARM_ASSETS = [
   "/diamond3d.png",
   "/cam3d.png",
   "/order3d.png",
-  "/shield3d.png"
+  "/shield3d.png",
+  "/wheel.png",
+  "/videoplayback.mp4",
+  "/dubai.mp4"
 ];
 
 async function warmCache(cacheName = PRECACHE) {

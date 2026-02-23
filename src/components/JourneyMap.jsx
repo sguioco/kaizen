@@ -239,7 +239,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                     <div className={`journey-mobile-road-wrap ${isRTL ? "rtl" : ""}`}>
                         <div ref={mobileTrackRef} className="track-container journey-mobile-track">
                             <div ref={mobileVanRef} className="van-wrapper journey-mobile-van">
-                                <img src={vanImage} alt="Kaizen Car" className="journey-van-img" />
+                                <img src={vanImage} alt="Kaizen Car" className="journey-van-img" loading="lazy" decoding="async" />
                             </div>
                         </div>
                     </div>
@@ -247,7 +247,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                     <div className={`journey-mobile-milestones ${isRTL ? "rtl" : ""}`}>
                         {copy.milestones.map((ms, i) => (
                             <div key={ms.key} className="milestone-marker journey-mobile-milestone">
-                                <img ref={[geoRef, lightningRef, handshakeRef, inspectionRef, guaranteeRef][i]} src={milestoneIcons[i]} alt={ms.title} />
+                                <img ref={[geoRef, lightningRef, handshakeRef, inspectionRef, guaranteeRef][i]} src={milestoneIcons[i]} alt={ms.title} loading="lazy" decoding="async" />
                                 <h4>{ms.title}</h4>
                             </div>
                         ))}
@@ -306,7 +306,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
 
                     {/* The Van */}
                     <div ref={vanRef} className="van-wrapper" style={{ position: "absolute", left: "0", bottom: "-10px", zIndex: 10 }}>
-                        <img src={vanImage} alt="Kaizen Car" className="journey-van-img" style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1 }} />
+                        <img src={vanImage} alt="Kaizen Car" className="journey-van-img" loading="lazy" decoding="async" style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1 }} />
                         {/* Tires - Static overlay moving with the van */}
                         <img
                             ref={tireBackRef}
@@ -348,7 +348,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                         return (
                             <div key={ms.key} className="milestone-marker" style={{ position: "absolute", left: markerPositions[i], bottom: "-1px", width: "12px", height: "12px", borderRadius: "50%", background: "#fff", transform: "translate(-50%, 50%)", zIndex: 20 }}>
                                 <div className="journey-icon-wrap" style={{ position: "absolute", bottom: "25px", left: "50%", transform: "translateX(-50%)", textAlign: "center", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-                                    <img ref={iconRefs[i]} src={icons[i]} alt={ms.title} style={{ width: "100%", height: "auto", display: "block" }} />
+                                    <img ref={iconRefs[i]} src={icons[i]} alt={ms.title} loading="lazy" decoding="async" style={{ width: "100%", height: "auto", display: "block" }} />
                                 </div>
                                 <div
                                     className="journey-text-wrap"
