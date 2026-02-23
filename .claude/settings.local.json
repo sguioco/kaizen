@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(python -c:*)"
+    ]
+  }
+}

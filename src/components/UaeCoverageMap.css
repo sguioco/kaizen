@@ -1,0 +1,101 @@
+.uae-map-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.uae-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.uae-outline {
+  transition: stroke 180ms ease, fill 180ms ease;
+}
+
+.uae-pin {
+  cursor: pointer;
+  outline: none;
+}
+
+.uae-pin .pin-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 2;
+  opacity: 0.55;
+  transform-origin: center;
+}
+
+.uae-pin .pin-halo {
+  fill: rgba(255, 255, 255, 0.12);
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+}
+
+.uae-pin .pin-core {
+  fill: rgba(255, 255, 255, 0.88);
+}
+
+.uae-pin .pin-label {
+  opacity: 0.35;
+  transform-origin: center;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.uae-pin .pin-pill {
+  fill: rgba(5, 5, 5, 0.55);
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 1;
+}
+
+.uae-pin .pin-text {
+  fill: rgba(255, 255, 255, 0.86);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.uae-pin:hover .pin-label,
+.uae-pin:focus-visible .pin-label {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.uae-pin.active .pin-label {
+  opacity: 0.95;
+}
+
+.uae-pin.active .pin-core {
+  fill: rgba(250, 0, 0, 0.95);
+}
+
+.uae-pin.active .pin-halo {
+  fill: rgba(250, 0, 0, 0.12);
+  stroke: rgba(250, 0, 0, 0.35);
+}
+
+.uae-pin.active .pin-ring {
+  stroke: rgba(250, 0, 0, 0.35);
+  opacity: 0.85;
+  animation: uae-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes uae-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uae-pin.active .pin-ring {
+    animation: none;
+  }
+}
