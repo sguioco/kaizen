@@ -2091,7 +2091,7 @@ button {
 
 @media (min-width: 781px) {
   .pricing-slide.open {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
   }
 }
 
@@ -4911,7 +4911,7 @@ body.y-widget-open {
   }
 
   .journey-mobile-van-end {
-    left: 50%;
+    left: 35%;
     right: auto;
     transform: translateX(-50%);
   }
