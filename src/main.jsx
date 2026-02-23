@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import ReactDOM from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import "./styles.css";
@@ -70,7 +70,7 @@ function AdminRoute() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const appTree = (
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
@@ -80,3 +80,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+const rootElement = document.getElementById("root");
+if (rootElement?.hasChildNodes()) {
+  hydrateRoot(rootElement, appTree);
+} else if (rootElement) {
+  createRoot(rootElement).render(appTree);
+}

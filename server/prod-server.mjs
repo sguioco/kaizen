@@ -16,9 +16,24 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 
 registerAltegioRoutes(app);
-app.use(express.static(distDir));
+app.use(
+  express.static(distDir, {
+    setHeaders: (res, filePath) => {
+      const staticAssetPattern = /\.(?:js|css|png|jpg|jpeg|webp|svg|gif|mp4|webm|woff2?|ttf|otf)$/i;
+      if (staticAssetPattern.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        return;
+      }
+
+      if (filePath.endsWith("sw.js")) {
+        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      }
+    }
+  })
+);
 
 app.get("*", (_req, res) => {
+  res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
   res.sendFile(path.resolve(distDir, "index.html"));
 });
 
