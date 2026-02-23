@@ -200,8 +200,8 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
         milestones.forEach((ms, i) => {
             if (ms) {
                 tl.fromTo(ms,
-                    { scale: 0, opacity: 0 },
-                    { scale: 1, opacity: 1, duration: 0.05, ease: "back.out(1.7)" },
+                    { opacity: 0 },
+                    { opacity: 1, duration: 0.08, ease: "power2.out" },
                     positions[i]
                 );
             }
@@ -241,7 +241,7 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
     const markerPositions = isMobileLayout
         ? (isRTL ? ["94%", "74%", "54%", "34%", "14%"] : ["6%", "26%", "46%", "66%", "86%"])
         : (isRTL ? ["100%", "80%", "60%", "40%", "20%"] : ["0%", "20%", "40%", "60%", "80%"]);
-    const milestoneIcons = ["/crown3d.webp", "/diamond3d.webp", "/cam3d.webp", "/order3d.png", "/shield3d.png"];
+    const milestoneIcons = ["/crown3d.webp", "/diamond3d.webp", "/cam3d.webp", "/order3d.webp", "/shield3d.webp"];
 
     if (isMobileLayout) {
         return (
