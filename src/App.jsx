@@ -858,10 +858,10 @@ export default function App() {
         const words = block.querySelectorAll(".word-inner");
 
         if (words.length) {
-          gsap.set(words, { y: 18, opacity: 0, filter: "blur(6px)" });
+          gsap.set(words, { y: 14, opacity: 0 });
         }
         if (items.length) {
-          gsap.set(items, { y: 28, opacity: 0, filter: "blur(6px)" });
+          gsap.set(items, { y: 20, opacity: 0 });
         }
 
         const tl = gsap.timeline({ paused: true });
@@ -870,7 +870,6 @@ export default function App() {
           tl.to(words, {
             y: 0,
             opacity: 1,
-            filter: "blur(0px)",
             stagger: 0.015,
             duration: 0.3,
             ease: "power3.out"
@@ -883,7 +882,6 @@ export default function App() {
             {
               y: 0,
               opacity: 1,
-              filter: "blur(0px)",
               stagger: 0.06,
               duration: 0.4,
               ease: "power3.out"
@@ -1159,7 +1157,7 @@ export default function App() {
         img.decoding = "async";
         img.src = src;
         if (typeof img.decode === "function") {
-          img.decode().catch(() => {});
+          img.decode().catch(() => { });
         }
       });
     };
@@ -1433,11 +1431,11 @@ export default function App() {
           <video
             className="hero-video"
             src={heroVideoSrc}
-            autoPlay={!isPerformanceLite}
+            autoPlay
             muted
             loop
             playsInline
-            preload={isPerformanceLite ? "none" : "metadata"}
+            preload="metadata"
             poster="/dubai.png"
             onError={handleHeroVideoError}
           />
