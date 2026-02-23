@@ -3,7 +3,6 @@ import { BeforeAfter } from "react-simple-before-after";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LumenCard } from "./components/LumenCard.jsx";
-import { Sparkles } from "./components/Sparkles.jsx"; // Replaced SmokeOverlay
 import { LogoMarquee } from "./components/LogoMarquee.jsx";
 import JourneyMap from "./components/JourneyMap";
 import LiquidGlassCard from "./components/LiquidGlassCard.jsx";
@@ -562,8 +561,9 @@ const reviewsFallbackCopy = {
   AR: "ستظهر مراجعات Google هنا بعد تفعيل الملف التجاري بالكامل."
 };
 
-const DEFAULT_HERO_VIDEO = "/videoplayback.mp4";
-const BACKUP_HERO_VIDEO = "/dubai.mp4";
+const DEFAULT_HERO_VIDEO = "/hero-50s.mp4";
+const BACKUP_HERO_VIDEO = "/videoplayback.mp4";
+const LEGACY_HERO_VIDEO = "/dubai.mp4";
 const CRITICAL_SERVICE_ASSETS = [
   "/rolls1.webp",
   "/rolls2.webp",
@@ -583,7 +583,9 @@ function normalizeHeroVideoUrl(url) {
 
 function buildHeroVideoFallbackChain(adminUrl) {
   const preferred = normalizeHeroVideoUrl(adminUrl);
-  return Array.from(new Set([preferred, DEFAULT_HERO_VIDEO, BACKUP_HERO_VIDEO].filter(Boolean)));
+  return Array.from(
+    new Set([DEFAULT_HERO_VIDEO, preferred, BACKUP_HERO_VIDEO, LEGACY_HERO_VIDEO].filter(Boolean))
+  );
 }
 
 const uiCopy = {
@@ -743,7 +745,7 @@ export default function App() {
   const portfolioConfig = normalizePortfolioConfig(adminPortfolio);
   const portfolioVisible = portfolioConfig.visible !== false;
   const [heroVideoSrc, setHeroVideoSrc] = useState(DEFAULT_HERO_VIDEO);
-  const heroVideoFallbackChainRef = useRef([DEFAULT_HERO_VIDEO, BACKUP_HERO_VIDEO]);
+  const heroVideoFallbackChainRef = useRef([DEFAULT_HERO_VIDEO, BACKUP_HERO_VIDEO, LEGACY_HERO_VIDEO]);
   const portfolioItems = buildPortfolioItems(portfolioConfig.items);
   const hasPortfolioContent = portfolioVisible && portfolioItems.length > 0;
   // Per-service pricing: adminPackages is { auto: [...], moto: [...], ... } or old flat array
@@ -764,6 +766,7 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isPerformanceLite, setIsPerformanceLite] = useState(false);
   const [shouldLoadTrustWidgets, setShouldLoadTrustWidgets] = useState(false);
   const whatsappPhone = "971543720101";
   const whatsappMessageByLanguage = {
@@ -821,7 +824,7 @@ export default function App() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || isPerformanceLite) {
       return undefined;
     }
 
@@ -933,7 +936,7 @@ export default function App() {
     }, rootRef);
 
     return () => ctx.revert();
-  }, [language]);
+  }, [language, isPerformanceLite]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -943,6 +946,27 @@ export default function App() {
     media.addEventListener("change", syncViewport);
     return () => media.removeEventListener("change", syncViewport);
   }, []);
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cores = navigator.hardwareConcurrency || 8;
+    const ram = navigator.deviceMemory || 8;
+    const connection =
+      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const saveData = !!connection?.saveData;
+    const slowNetwork =
+      typeof connection?.effectiveType === "string" &&
+      (connection.effectiveType.includes("2g") || connection.effectiveType.includes("3g"));
+
+    setIsPerformanceLite(
+      reduced ||
+      isMobileViewport ||
+      saveData ||
+      slowNetwork ||
+      cores <= 4 ||
+      ram <= 4
+    );
+  }, [isMobileViewport]);
 
   useEffect(() => {
     const langCode = language === "AR" ? "ar" : language.toLowerCase();
@@ -1317,7 +1341,7 @@ export default function App() {
   );
 
   return (
-    <div className="page" ref={rootRef} dir={isRTL ? "rtl" : "ltr"} lang={language === "AR" ? "ar" : language.toLowerCase()}>
+    <div className={`page${isPerformanceLite ? " perf-lite" : ""}`} ref={rootRef} dir={isRTL ? "rtl" : "ltr"} lang={language === "AR" ? "ar" : language.toLowerCase()}>
       <div className="grain" aria-hidden="true" />
       {/* Menu Overlay */}
       <MenuOverlay
@@ -1409,11 +1433,11 @@ export default function App() {
           <video
             className="hero-video"
             src={heroVideoSrc}
-            autoPlay
+            autoPlay={!isPerformanceLite}
             muted
             loop
             playsInline
-            preload="metadata"
+            preload={isPerformanceLite ? "none" : "metadata"}
             poster="/dubai.png"
             onError={handleHeroVideoError}
           />
@@ -1475,34 +1499,10 @@ export default function App() {
         </section>
 
         <section className="section why reveal-block" id="why">
-          {/* Replaced SmokeOverlay with Sparkles */}
-          <Sparkles
-            id="why-sparkles"
-            background="transparent"
-            minSize={0.6}
-            size={1.5}
-            opacity={0.5}
-            speed={2.6}
-            density={isMobileViewport ? 170 : 240}
-            className="why-particles"
-            direction="bottom"
-            options={{
-              fpsLimit: isMobileViewport ? 40 : 60,
-              interactivity: {
-                events: {
-                  onClick: { enable: false },
-                  onHover: { enable: false },
-                  resize: true
-                },
-                modes: {
-                  push: { quantity: 0 }
-                }
-              }
-            }}
-          />
+          <div className="why-stars-static" aria-hidden="true" />
           <div className="section-inner" style={{ maxWidth: "100%", padding: 0 }}>
             {/* Replaced Cards with Journey Animation */}
-            <JourneyMap language={language} isRTL={isRTL} />
+            <JourneyMap language={language} isRTL={isRTL} performanceLite={isPerformanceLite} />
           </div>
         </section>
 

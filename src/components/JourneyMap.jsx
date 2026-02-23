@@ -5,7 +5,7 @@ import ShinyText from "./ShinyText.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function JourneyMap({ language = "EN", isRTL = false }) {
+export default function JourneyMap({ language = "EN", isRTL = false, performanceLite = false }) {
     const sectionRef = useRef(null);
     const trackRef = useRef(null);
     const vanRef = useRef(null);
@@ -105,6 +105,32 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
         const travelDistance = Math.max(track.clientWidth - van.clientWidth, 0);
         const startX = isRTL ? travelDistance : 0;
         const endX = isRTL ? 0 : travelDistance;
+        const desktopMilestones = section.querySelectorAll(".milestone-marker");
+        const forceStaticDesktop = performanceLite && !isMobileLayout;
+
+        if (forceStaticDesktop) {
+            gsap.set(van, { x: endX, force3D: true });
+            if (tireBack) {
+                gsap.set(tireBack, {
+                    x: 0,
+                    y: 0,
+                    rotation: 0,
+                    transformOrigin: tireBackOrigin
+                });
+            }
+            if (tireFront) {
+                gsap.set(tireFront, {
+                    x: 0,
+                    y: 0,
+                    rotation: 0,
+                    transformOrigin: tireFrontOrigin
+                });
+            }
+            gsap.set(desktopMilestones, { opacity: 1, scale: 1, clearProps: "transform" });
+            return () => {
+                gsap.killTweensOf([vanRef.current, tireFrontRef.current, tireBackRef.current, ...desktopMilestones]);
+            };
+        }
 
         const tl = gsap.timeline({
             scrollTrigger: {
@@ -168,7 +194,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
 
         // Reveal Milestones (Checkpoints based on Scroll)
         // 5 milestones at 0%, 20%, 40%, 60%, 80%
-        const milestones = section.querySelectorAll(".milestone-marker");
+        const milestones = desktopMilestones;
         const positions = isMobile ? [0.12, 0.30, 0.50, 0.70, 0.90] : [0.15, 0.35, 0.58, 0.80, 0.98];
 
         milestones.forEach((ms, i) => {
@@ -195,7 +221,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                 guaranteeRef.current
             ]);
         };
-    }, [isRTL, isMobileLayout, isLowPerformance]);
+    }, [isRTL, isMobileLayout, isLowPerformance, performanceLite]);
 
     useEffect(() => {
         const media = window.matchMedia("(max-width: 768px)");

@@ -155,6 +155,30 @@ button {
   letter-spacing: 0.02em;
 }
 
+/* Lightweight rendering mode for low-end devices / slow networks */
+.page.perf-lite .grain,
+.page.perf-lite .hero-aurora,
+.page.perf-lite .trust-aurora {
+  display: none !important;
+}
+
+.page.perf-lite .site-header.scrolled {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.page.perf-lite .services-wheel {
+  filter: none;
+  opacity: 0.11;
+}
+
+.page.perf-lite .lumen-card,
+.page.perf-lite .pricing-card,
+.page.perf-lite .membership-card,
+.page.perf-lite .btn {
+  transition: none !important;
+}
+
 .grain {
   position: fixed;
   inset: 0;
@@ -501,7 +525,7 @@ button {
   /* Above particles */
 }
 
-.why-particles {
+.why-stars-static {
   position: absolute;
   top: 0;
   left: 0;
@@ -509,6 +533,23 @@ button {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  background-image:
+    radial-gradient(circle at 8% 18%, rgba(255, 255, 255, 0.78) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 22% 64%, rgba(255, 255, 255, 0.55) 0 0.9px, transparent 1.2px),
+    radial-gradient(circle at 39% 33%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.3px),
+    radial-gradient(circle at 58% 74%, rgba(255, 255, 255, 0.5) 0 0.9px, transparent 1.2px),
+    radial-gradient(circle at 73% 41%, rgba(255, 255, 255, 0.66) 0 1px, transparent 1.25px),
+    radial-gradient(circle at 89% 22%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 13% 86%, rgba(255, 255, 255, 0.58) 0 0.95px, transparent 1.2px),
+    radial-gradient(circle at 84% 88%, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.25px);
+  background-size: 520px 380px;
+  background-repeat: repeat;
+  opacity: 0.58;
+}
+
+.section.why .section-inner {
+  position: relative;
+  z-index: 1;
 }
 
 .handwriting-container {

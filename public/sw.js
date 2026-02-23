@@ -1,10 +1,11 @@
-const PRECACHE = "kaizen-precache-v3";
-const RUNTIME = "kaizen-runtime-v3";
+const PRECACHE = "kaizen-precache-v4";
+const RUNTIME = "kaizen-runtime-v4";
 
 const WARM_ASSETS = [
   "/logo_white.svg",
   "/UAEflag.webp",
   "/dubai.png",
+  "/hero-50s.mp4",
   "/rolls1.webp",
   "/rolls2.webp",
   "/moto.webp",
