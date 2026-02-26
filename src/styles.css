@@ -155,30 +155,6 @@ button {
   letter-spacing: 0.02em;
 }
 
-/* Lightweight rendering mode for low-end devices / slow networks */
-.page.perf-lite .grain,
-.page.perf-lite .hero-aurora,
-.page.perf-lite .trust-aurora {
-  display: none !important;
-}
-
-.page.perf-lite .site-header.scrolled {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.page.perf-lite .services-wheel {
-  filter: none;
-  opacity: 0.11;
-}
-
-.page.perf-lite .lumen-card,
-.page.perf-lite .pricing-card,
-.page.perf-lite .membership-card,
-.page.perf-lite .btn {
-  transition: none !important;
-}
-
 .grain {
   position: fixed;
   inset: 0;
@@ -525,7 +501,7 @@ button {
   /* Above particles */
 }
 
-.why-stars-static {
+.why-particles {
   position: absolute;
   top: 0;
   left: 0;
@@ -533,23 +509,6 @@ button {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 8% 18%, rgba(255, 255, 255, 0.78) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 22% 64%, rgba(255, 255, 255, 0.55) 0 0.9px, transparent 1.2px),
-    radial-gradient(circle at 39% 33%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.3px),
-    radial-gradient(circle at 58% 74%, rgba(255, 255, 255, 0.5) 0 0.9px, transparent 1.2px),
-    radial-gradient(circle at 73% 41%, rgba(255, 255, 255, 0.66) 0 1px, transparent 1.25px),
-    radial-gradient(circle at 89% 22%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 13% 86%, rgba(255, 255, 255, 0.58) 0 0.95px, transparent 1.2px),
-    radial-gradient(circle at 84% 88%, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.25px);
-  background-size: 520px 380px;
-  background-repeat: repeat;
-  opacity: 0.58;
-}
-
-.section.why .section-inner {
-  position: relative;
-  z-index: 1;
 }
 
 .handwriting-container {
@@ -710,18 +669,6 @@ button {
 
 .hero-title .hero-line+.hero-line {
   margin-top: -0.14em;
-}
-
-.hero-title.hero-title-ru .hero-line:nth-child(2) {
-  margin-top: -0.14em;
-}
-
-.hero-title.hero-title-ru .hero-line:nth-child(3) {
-  margin-top: -0.1em;
-}
-
-.hero-title.hero-title-ru .hero-line:last-child {
-  margin-top: 0.08em;
 }
 
 .hero-line .shiny-text {
@@ -1034,12 +981,12 @@ button {
 .membership-image-container {
   display: none;
   /* hidden on mobile */
-  --infinite-shift-x: -950px;
-  --infinite-shift-y: 290px;
-  --infinite-scale: 0.5;
-  --infinite-shift-x-rtl: -250px;
-  --infinite-shift-y-rtl: 290px;
-  --infinite-scale-rtl: 0.5;
+  --infinite-shift-x: -200px;
+  --infinite-shift-y: 0px;
+  --infinite-scale: 1.5;
+  --infinite-shift-x-rtl: -1000px;
+  --infinite-shift-y-rtl: 0px;
+  --infinite-scale-rtl: 1.5;
 }
 
 @media (min-width: 1024px) {
@@ -1105,8 +1052,8 @@ button {
         rgba(255, 255, 255, 0.99) 100%);
     background-size: 300% 100%;
     background-position: 0% 50%;
-    -webkit-mask-image: url("/infinite1.webp");
-    mask-image: url("/infinite1.webp");
+    -webkit-mask-image: url("/infinite1.png");
+    mask-image: url("/infinite1.png");
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-position: 0 0;
@@ -1953,15 +1900,36 @@ button {
 }
 
 .lumen-card.selected {
-  /* Red theme — same size, red background + border */
+  /* Red theme for selected state - Merged Look */
+  /* Red theme for selected state - Merged Look */
+  box-shadow: 0 -10px 30px rgba(250, 0, 0, 0.15);
+  /* Red glow (top/sides only) */
+
+  /* Explicit frame: only left/right/top, never bottom. */
+  border-left: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
+  border-right: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
+  border-top: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
+
+  /* Gradient ends in #2a0000 to match pricing top */
   background: linear-gradient(180deg, #3a0000 0%, #2a0000 100%);
-  border: 2px solid rgba(250, 0, 0, 0.8);
-  box-shadow:
-    0 0 20px rgba(250, 0, 0, 0.2),
-    0 0 40px rgba(250, 0, 0, 0.1);
+  transform: translateY(var(--services-selected-card-lift));
+
+  /* Remove bottom rounding and border to merge with pricing */
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 0 !important;
+  /* Increase ACTUAL height to extend downwards */
+  /* USER GUIDE: Adjust this value to make the card taller/shorter */
+  height: var(--services-selected-card-height);
   z-index: 20;
+  /* High z-index to stay on top */
   position: relative;
+  /* CRITICAL FIX: Allow the glow to extend outside */
   overflow: visible !important;
+  margin-bottom: 0;
+
+  /* Keep label visually stable when selected height changes. */
+  padding-bottom: var(--services-selected-card-bottom-padding);
 }
 
 /* Removed the patch ::after based on user feedback */
@@ -2081,18 +2049,14 @@ button {
 /* Pricing slide container */
 .pricing-slide.open {
   grid-template-rows: 1fr;
-  margin-top: 0;
+  /* Moved even higher as per request */
+  margin-top: var(--services-pricing-overlap);
   margin-bottom: 2rem;
   position: relative;
   z-index: 5;
   /* Sit behind the card */
-  padding-top: 0;
-}
-
-@media (min-width: 781px) {
-  .pricing-slide.open {
-    margin-top: 1rem;
-  }
+  padding-top: var(--services-pricing-top-padding);
+  /* Restored to normal padding so content is higher */
 }
 
 .pricing-slide-inner {
@@ -2120,7 +2084,14 @@ button {
   padding: 2rem;
 }
 
-/* All pricing corners are always fully rounded */
+.pricing-slide.auto-selected .pricing-slide-inner {
+  border-top-left-radius: 0;
+}
+
+.page[dir="rtl"] .pricing-slide.auto-selected .pricing-slide-inner {
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: 0;
+}
 
 /* Fully collapse pricing area when no service is selected. */
 .pricing-slide:not(.open) {
@@ -3612,7 +3583,7 @@ body.y-widget-open {
   text-align: center;
 }
 
-.footer-grid>div {
+.footer-grid > div {
   width: 100%;
   text-align: center;
 }
@@ -4071,7 +4042,7 @@ body.y-widget-open {
     gap: 0.6rem;
   }
 
-  .footer-grid>div:first-child {
+  .footer-grid > div:first-child {
     grid-column: 1 / -1;
   }
 
@@ -4910,18 +4881,6 @@ body.y-widget-open {
     z-index: 4;
   }
 
-  .journey-mobile-van-end {
-    left: 35%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-
-  .journey-mobile-van-end.rtl {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) scaleX(-1);
-  }
-
   .journey-mobile-van .journey-van-img {
     width: 100%;
     height: auto;
@@ -4949,8 +4908,8 @@ body.y-widget-open {
     align-items: center;
     text-align: center;
     gap: 0.2rem;
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;
+    transform: scale(0.78);
     transform-origin: center center;
   }
 
@@ -5111,22 +5070,50 @@ body.y-widget-open {
     display: block;
     grid-column: 1 / -1;
     /* Glue pricing to selected card; extra shift is controlled separately. */
-    margin-top: calc((var(--services-selected-card-extra-height) * -1) - var(--services-mobile-grid-gap) + var(--services-mobile-pricing-shift));
+    margin-top: calc(
+      (var(--services-selected-card-extra-height) * -1) -
+      var(--services-mobile-grid-gap) +
+      var(--services-mobile-pricing-shift)
+    );
   }
 
   .services-mobile-pricing-slot .pricing-slide.open {
-    margin-top: 0.6rem !important;
+    margin-top: 0 !important;
     margin-bottom: 0.6rem;
     padding-top: 0 !important;
   }
 
   .services-mobile-pricing-slot .pricing-slide-inner {
-    border-radius: var(--radius-lg) !important;
+    border-top-left-radius: var(--radius-lg) !important;
+    border-top: none !important;
+    border-top-color: transparent !important;
   }
 
   .services-grid .lumen-card.selected::after {
     content: none !important;
     display: none !important;
+  }
+
+  .services-mobile-pricing-slot .pricing-slide.auto-selected .pricing-slide-inner,
+  .pricing-slide.auto-selected .pricing-slide-inner {
+    border-top-left-radius: 0 !important;
+  }
+
+  .services-mobile-pricing-slot .pricing-slide.motorhome-selected .pricing-slide-inner,
+  .pricing-slide.motorhome-selected .pricing-slide-inner {
+    border-top-right-radius: 0 !important;
+  }
+
+  .page[dir="rtl"] .services-mobile-pricing-slot .pricing-slide.auto-selected .pricing-slide-inner,
+  .page[dir="rtl"] .pricing-slide.auto-selected .pricing-slide-inner {
+    border-top-left-radius: var(--radius-lg) !important;
+    border-top-right-radius: 0 !important;
+  }
+
+  .page[dir="rtl"] .services-mobile-pricing-slot .pricing-slide.motorhome-selected .pricing-slide-inner,
+  .page[dir="rtl"] .pricing-slide.motorhome-selected .pricing-slide-inner {
+    border-top-right-radius: var(--radius-lg) !important;
+    border-top-left-radius: 0 !important;
   }
 
   .lumen-card {

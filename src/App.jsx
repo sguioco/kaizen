@@ -743,7 +743,10 @@ export default function App() {
   const adminPackages = getAdminData("kaizen_admin_packages", null);
   const adminPortfolio = getAdminData("kaizen_admin_portfolio", null);
   const portfolioConfig = normalizePortfolioConfig(adminPortfolio);
-  const portfolioVisible = portfolioConfig.visible !== false;
+  const envPortfolioFlag = import.meta.env.VITE_PORTFOLIO_VISIBLE;
+  const portfolioVisible = envPortfolioFlag !== undefined
+    ? envPortfolioFlag !== "false" && envPortfolioFlag !== "0"
+    : portfolioConfig.visible !== false;
   const [heroVideoSrc, setHeroVideoSrc] = useState(DEFAULT_HERO_VIDEO);
   const heroVideoFallbackChainRef = useRef([DEFAULT_HERO_VIDEO, BACKUP_HERO_VIDEO, LEGACY_HERO_VIDEO]);
   const portfolioItems = buildPortfolioItems(portfolioConfig.items);
