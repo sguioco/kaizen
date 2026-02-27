@@ -3373,18 +3373,18 @@ body.y-widget-open {
 
 .zone-abu {
   /* abu.png uses alpha; keep it consistent with Dubai/Sharjah so the gradient fills the region. */
-  -webkit-mask-image: url("/abu.png");
-  mask-image: url("/abu.png");
+  -webkit-mask-image: url("/abu.webp");
+  mask-image: url("/abu.webp");
 }
 
 .zone-dubai {
-  -webkit-mask-image: url("/dubai.png");
-  mask-image: url("/dubai.png");
+  -webkit-mask-image: url("/dubai.webp");
+  mask-image: url("/dubai.webp");
 }
 
 .zone-sharjah {
-  -webkit-mask-image: url("/sharjah.png");
-  mask-image: url("/sharjah.png");
+  -webkit-mask-image: url("/sharjah.webp");
+  mask-image: url("/sharjah.webp");
 }
 
 .zone-abu,
@@ -4547,6 +4547,25 @@ body.y-widget-open {
 
 @media (max-width: 768px) {
 
+  /* Mobile performance: reduce expensive GPU effects */
+  .pricing-card,
+  .liquid-glass-card,
+  .process-card-new,
+  .membership-plan,
+  .trust-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .word-inner,
+  .reveal-item,
+  .journey-van-img,
+  .journey-tire,
+  .journey-mobile-van,
+  .journey-mobile-milestone {
+    will-change: auto !important;
+  }
+
   /* Global Utility Overrides */
   .desktop-only {
     display: none !important;
@@ -5066,6 +5085,12 @@ body.y-widget-open {
   .lumen-card {
     height: 9.2rem;
     padding: 0.45rem;
+  }
+
+  /* Hide expensive light-layer effects on mobile for performance */
+  .lumen-card .light-layer .lumen,
+  .lumen-card .light-layer .darken {
+    display: none !important;
   }
 
   .lumen-card .content .icon {

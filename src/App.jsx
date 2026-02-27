@@ -570,8 +570,8 @@ const CRITICAL_SERVICE_ASSETS = [
   "/moto.webp",
   "/concord.webp",
   "/yacht.webp",
-  "/home.png",
-  "/questionmark.png"
+  "/home.webp",
+  "/questionmark.webp"
 ];
 
 function normalizeHeroVideoUrl(url) {
@@ -1141,17 +1141,17 @@ export default function App() {
     if (typeof window === "undefined") return undefined;
 
     const assetsToWarm = [
-      "/keizenCAR.png",
-      "/keizenCARar.png",
-      "/tireFront.png",
-      "/tireBack.png",
-      "/tireFrontar.png",
-      "/tireBackar.png",
+      "/keizenCAR.webp",
+      "/keizenCARar.webp",
+      "/tireFront.webp",
+      "/tireBack.webp",
+      "/tireFrontar.webp",
+      "/tireBackar.webp",
       "/crown3d.webp",
       "/diamond3d.webp",
       "/cam3d.webp",
-      "/order3d.png",
-      "/shield3d.png"
+      "/order3d.webp",
+      "/shield3d.webp"
     ];
 
     const warm = () => {
@@ -1439,7 +1439,7 @@ export default function App() {
             loop
             playsInline
             preload="metadata"
-            poster="/dubai.png"
+            poster="/dubai.webp"
             onError={handleHeroVideoError}
           />
           <div className="hero-overlay" />
@@ -1912,7 +1912,7 @@ export default function App() {
           </div>
           <div className="coverage-bleed">
             <div className="coverage-map-stack">
-              <img className="coverage-map-base" src="/map.png" alt="" loading="lazy" decoding="async" />
+              <img className="coverage-map-base" src="/map.webp" alt="" loading="lazy" decoding="async" />
               <div className="coverage-zone zone-abu" />
               <div className="coverage-zone zone-dubai" />
               <div className="coverage-zone zone-sharjah" />

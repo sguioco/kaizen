@@ -1,29 +1,29 @@
-const PRECACHE = "kaizen-precache-v4";
-const RUNTIME = "kaizen-runtime-v4";
+const PRECACHE = "kaizen-precache-v5";
+const RUNTIME = "kaizen-runtime-v5";
 
 const WARM_ASSETS = [
   "/logo_white.svg",
   "/UAEflag.webp",
-  "/dubai.png",
+  "/dubai.webp",
   "/hero-50s.mp4",
   "/rolls1.webp",
   "/rolls2.webp",
   "/moto.webp",
   "/concord.webp",
   "/yacht.webp",
-  "/home.png",
-  "/questionmark.png",
-  "/keizenCAR.png",
-  "/keizenCARar.png",
-  "/tireBack.png",
-  "/tireBackar.png",
-  "/tireFront.png",
-  "/tireFrontar.png",
+  "/home.webp",
+  "/questionmark.webp",
+  "/keizenCAR.webp",
+  "/keizenCARar.webp",
+  "/tireBack.webp",
+  "/tireBackar.webp",
+  "/tireFront.webp",
+  "/tireFrontar.webp",
   "/crown3d.webp",
   "/diamond3d.webp",
   "/cam3d.webp",
-  "/order3d.png",
-  "/shield3d.png"
+  "/order3d.webp",
+  "/shield3d.webp"
 ];
 
 async function warmCache(cacheName = PRECACHE) {

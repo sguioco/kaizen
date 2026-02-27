@@ -64,10 +64,10 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
     };
     const copy = journeyCopy[language] || journeyCopy.EN;
     const isRuLanguage = language === "RU";
-    const vanImage = isRTL ? "/keizenCARar.png" : "/keizenCAR.png";
+    const vanImage = isRTL ? "/keizenCARar.webp" : "/keizenCAR.webp";
     // User provided full-canvas tire images
-    const tireBackImg = isRTL ? "/tireBackar.png" : "/tireBack.png";
-    const tireFrontImg = isRTL ? "/tireFrontar.png" : "/tireFront.png";
+    const tireBackImg = isRTL ? "/tireBackar.webp" : "/tireBack.webp";
+    const tireFrontImg = isRTL ? "/tireFrontar.webp" : "/tireFront.webp";
     // Exact rotation centers from tire PNG alpha bounds (1280x904 canvas)
     // LTR: back(248.5, 618), front(1086.5, 615.5)
     // RTL: back(1029.5, 607), front(188.5, 605.5)

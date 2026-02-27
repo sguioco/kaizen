@@ -254,7 +254,7 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
           ) : isSecret ? (
             <div className="service-img-icon" aria-hidden="true">
                 <img
-                  src="/questionmark.png"
+                  src="/questionmark.webp"
                   alt={title}
                   className="service-img service-img-secret"
                   loading="eager"
@@ -269,7 +269,7 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
                     icon === "moto" ? "/moto.webp" :
                       icon === "motorhome" ? "/concord.webp" :
                         icon === "yacht" ? "/yacht.webp" :
-                        "/home.png"
+                        "/home.webp"
                   }
                   alt={title}
                   className={`service-img service-img-${icon}`}

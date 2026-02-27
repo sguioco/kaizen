@@ -8,7 +8,21 @@
       "Bash(ls:*)",
       "Bash(python3:*)",
       "Bash(python -c:*)",
-      "Bash(xargs grep -l \"gsap\\\\|animation\")"
+      "Bash(xargs grep -l \"gsap\\\\|animation\")",
+      "Bash(magick map.png -resize 25% -quality 80 map.webp)",
+      "Bash(magick dubai.png -resize 25% -quality 80 dubai.webp)",
+      "Bash(magick sharjah.png -resize 25% -quality 80 sharjah.webp)",
+      "Bash(magick abu.png -resize 25% -quality 80 abu.webp)",
+      "Bash(magick keizenCAR.png -resize 50% -quality 85 keizenCAR.webp)",
+      "Bash(magick keizenCARar.png -resize 50% -quality 85 keizenCARar.webp)",
+      "Bash(magick identify tireFront.png tireBack.png tireFrontar.png tireBackar.png)",
+      "Bash(magick tireFront.png -resize 50% -quality 85 tireFront.webp)",
+      "Bash(magick tireBack.png -resize 50% -quality 85 tireBack.webp)",
+      "Bash(magick tireFrontar.png -resize 50% -quality 85 tireFrontar.webp)",
+      "Bash(magick tireBackar.png -resize 50% -quality 85 tireBackar.webp)",
+      "Bash(magick identify questionmark.png)",
+      "Bash(magick questionmark.png -resize 25% -quality 80 questionmark.webp)",
+      "Bash(magick identify questionmark.webp)"
     ]
   }
 }
