@@ -266,7 +266,7 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
                                 direction={isRTL ? "right" : "left"}
                                 yoyo={false}
                                 pauseOnHover={false}
-                                disabled={false}
+                                disabled={isMobileLayout}
                             />
                         </h2>
                         <p className="section-subtitle reveal-item journey-subtitle">{copy.subtitle}</p>

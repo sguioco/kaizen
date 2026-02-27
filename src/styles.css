@@ -1900,36 +1900,20 @@ button {
 }
 
 .lumen-card.selected {
-  /* Red theme for selected state - Merged Look */
-  /* Red theme for selected state - Merged Look */
-  box-shadow: 0 -10px 30px rgba(250, 0, 0, 0.15);
-  /* Red glow (top/sides only) */
+  /* Red theme for selected state - Standalone rounded container */
+  box-shadow: 0 0 30px rgba(250, 0, 0, 0.15);
 
-  /* Explicit frame: only left/right/top, never bottom. */
-  border-left: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
-  border-right: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
-  border-top: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
+  /* Red border on all sides */
+  border: var(--services-selected-frame-width) solid rgba(250, 0, 0, 0.8);
 
-  /* Gradient ends in #2a0000 to match pricing top */
+  /* Red background */
   background: linear-gradient(180deg, #3a0000 0%, #2a0000 100%);
-  transform: translateY(var(--services-selected-card-lift));
 
-  /* Remove bottom rounding and border to merge with pricing */
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom: 0 !important;
-  /* Increase ACTUAL height to extend downwards */
-  /* USER GUIDE: Adjust this value to make the card taller/shorter */
-  height: var(--services-selected-card-height);
+  /* Keep all 4 rounded corners */
   z-index: 20;
-  /* High z-index to stay on top */
   position: relative;
-  /* CRITICAL FIX: Allow the glow to extend outside */
   overflow: visible !important;
   margin-bottom: 0;
-
-  /* Keep label visually stable when selected height changes. */
-  padding-bottom: var(--services-selected-card-bottom-padding);
 }
 
 /* Removed the patch ::after based on user feedback */
@@ -2049,14 +2033,11 @@ button {
 /* Pricing slide container */
 .pricing-slide.open {
   grid-template-rows: 1fr;
-  /* Moved even higher as per request */
-  margin-top: var(--services-pricing-overlap);
+  margin-top: 1rem;
   margin-bottom: 2rem;
   position: relative;
   z-index: 5;
-  /* Sit behind the card */
   padding-top: var(--services-pricing-top-padding);
-  /* Restored to normal padding so content is higher */
 }
 
 .pricing-slide-inner {
@@ -2084,14 +2065,7 @@ button {
   padding: 2rem;
 }
 
-.pricing-slide.auto-selected .pricing-slide-inner {
-  border-top-left-radius: 0;
-}
-
-.page[dir="rtl"] .pricing-slide.auto-selected .pricing-slide-inner {
-  border-top-left-radius: var(--radius-lg);
-  border-top-right-radius: 0;
-}
+/* All corners rounded - pricing is a standalone container */
 
 /* Fully collapse pricing area when no service is selected. */
 .pricing-slide:not(.open) {
@@ -4877,7 +4851,8 @@ body.y-widget-open {
     width: 108px;
     position: absolute;
     bottom: -4px !important;
-    left: 0;
+    left: 36%;
+    transform: translateX(-36%);
     z-index: 4;
   }
 
@@ -5069,12 +5044,7 @@ body.y-widget-open {
   .services-mobile-pricing-slot {
     display: block;
     grid-column: 1 / -1;
-    /* Glue pricing to selected card; extra shift is controlled separately. */
-    margin-top: calc(
-      (var(--services-selected-card-extra-height) * -1) -
-      var(--services-mobile-grid-gap) +
-      var(--services-mobile-pricing-shift)
-    );
+    margin-top: 0.4rem;
   }
 
   .services-mobile-pricing-slot .pricing-slide.open {
@@ -5084,36 +5054,13 @@ body.y-widget-open {
   }
 
   .services-mobile-pricing-slot .pricing-slide-inner {
-    border-top-left-radius: var(--radius-lg) !important;
-    border-top: none !important;
-    border-top-color: transparent !important;
+    /* All corners rounded - standalone container */
+    border-radius: var(--radius-lg) !important;
   }
 
   .services-grid .lumen-card.selected::after {
     content: none !important;
     display: none !important;
-  }
-
-  .services-mobile-pricing-slot .pricing-slide.auto-selected .pricing-slide-inner,
-  .pricing-slide.auto-selected .pricing-slide-inner {
-    border-top-left-radius: 0 !important;
-  }
-
-  .services-mobile-pricing-slot .pricing-slide.motorhome-selected .pricing-slide-inner,
-  .pricing-slide.motorhome-selected .pricing-slide-inner {
-    border-top-right-radius: 0 !important;
-  }
-
-  .page[dir="rtl"] .services-mobile-pricing-slot .pricing-slide.auto-selected .pricing-slide-inner,
-  .page[dir="rtl"] .pricing-slide.auto-selected .pricing-slide-inner {
-    border-top-left-radius: var(--radius-lg) !important;
-    border-top-right-radius: 0 !important;
-  }
-
-  .page[dir="rtl"] .services-mobile-pricing-slot .pricing-slide.motorhome-selected .pricing-slide-inner,
-  .page[dir="rtl"] .pricing-slide.motorhome-selected .pricing-slide-inner {
-    border-top-right-radius: var(--radius-lg) !important;
-    border-top-left-radius: 0 !important;
   }
 
   .lumen-card {

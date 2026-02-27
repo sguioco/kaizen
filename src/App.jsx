@@ -1091,7 +1091,7 @@ export default function App() {
     direction: isRTL ? "right" : "left",
     yoyo: false,
     pauseOnHover: false,
-    disabled: false
+    disabled: isPerformanceLite
   };
 
   useEffect(() => {
@@ -1445,14 +1445,16 @@ export default function App() {
           <div className="hero-overlay" />
 
           {/* Aurora glow - right edge */}
-          <div className="hero-aurora" aria-hidden="true">
-            <Aurora
-              colorStops={["#220000", "#ff3333", "#cc0000", "#220000"]}
-              blend={0.8}
-              amplitude={2}
-              speed={0.5}
-            />
-          </div>
+          {!isPerformanceLite && (
+            <div className="hero-aurora" aria-hidden="true">
+              <Aurora
+                colorStops={["#220000", "#ff3333", "#cc0000", "#220000"]}
+                blend={0.8}
+                amplitude={2}
+                speed={0.5}
+              />
+            </div>
+          )}
 
           <div className="hero-content">
             <div className="hero-copy">
@@ -1757,15 +1759,17 @@ export default function App() {
         ) : null}
 
         <section ref={trustSectionRef} className="section trust reveal-block" id="trust">
-          <div className="trust-aurora" aria-hidden="true">
-            <Aurora
-              colorStops={["#121212", "#fa0000", "#0a0a0a"]}
-              blend={0.5}
-              amplitude={1.0}
-              speed={1}
-            />
-            <div className="trust-aurora-fade" />
-          </div>
+          {!isPerformanceLite ? (
+            <div className="trust-aurora" aria-hidden="true">
+              <Aurora
+                colorStops={["#121212", "#fa0000", "#0a0a0a"]}
+                blend={0.5}
+                amplitude={1.0}
+                speed={1}
+              />
+              <div className="trust-aurora-fade" />
+            </div>
+          ) : null}
           <div className="section-inner trust-layout">
             {/* Header */}
             <div className="trust-header">
