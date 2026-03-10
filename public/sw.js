@@ -2,7 +2,7 @@ const PRECACHE = "kaizen-precache-v5";
 const RUNTIME = "kaizen-runtime-v5";
 
 const WARM_ASSETS = [
-  "/logo_white.svg",
+  "/logo_white.webp",
   "/UAEflag.webp",
   "/dubai.webp",
   "/hero-50s.mp4",

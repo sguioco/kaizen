@@ -657,7 +657,7 @@ export default function AdminPanel() {
     return (
       <div className="admin-login-page">
         <form className="admin-login-box" onSubmit={handleLogin}>
-          <img src="/logo_white.svg" alt="Kaizen Detailers" style={{ width: 48, marginBottom: 16 }} />
+          <img src="/logo_white.webp" alt="Kaizen Detailers" style={{ width: 48, marginBottom: 16 }} />
           <h2>Admin Panel</h2>
           <p>Enter password to continue</p>
           <input
@@ -680,7 +680,7 @@ export default function AdminPanel() {
       <header className="admin-header">
         <div className="admin-header-inner">
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img src="/logo_white.svg" alt="Kaizen Detailers" style={{ width: 32 }} />
+            <img src="/logo_white.webp" alt="Kaizen Detailers" style={{ width: 32 }} />
             <h1>Kaizen Admin</h1>
           </div>
           <a href="/" className="admin-btn admin-btn-outline" style={{ fontSize: "0.85rem" }}>Back to site</a>

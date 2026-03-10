@@ -1380,7 +1380,7 @@ export default function App() {
           </div>
 
           <div className="logo-block" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            <img src="/logo_white.svg" alt="Kaizen Detailers" />
+            <img src="/logo_white.webp" alt="Kaizen Detailers" />
             <img
               className="logo-wordmark"
               src="/kaizendetailing.png"
@@ -1681,9 +1681,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            {/* Closing line */}
-            <p className="membership-closing reveal-item">{t(membershipCopy.closing)}</p>
           </div>
         </section>
 
@@ -1946,7 +1943,7 @@ export default function App() {
       <footer className="footer" id="contact">
         <div className="footer-top">
           <div className="footer-top-brand">
-            <img src="/logo_white.svg" alt="Kaizen Detailers" loading="lazy" decoding="async" />
+            <img src="/logo_white.webp" alt="Kaizen Detailers" loading="lazy" decoding="async" />
           </div>
           <p>
             {t(uiCopy.footer.text)}

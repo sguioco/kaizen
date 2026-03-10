@@ -248,8 +248,8 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
         <div className="icon">
           {isAuto ? (
             <div className="auto-icon" aria-hidden="true">
-              <img className="auto-off service-img-auto" src="/rolls1.webp" alt="" loading="eager" fetchPriority="high" decoding="async" />
-              <img className="auto-on service-img-auto" src="/rolls2.webp" alt="" loading="eager" fetchPriority="high" decoding="async" />
+              <img className="auto-off service-img-auto" src="/rolls1.webp" alt="" loading="eager" fetchpriority="high" decoding="async" />
+              <img className="auto-on service-img-auto" src="/rolls2.webp" alt="" loading="eager" fetchpriority="high" decoding="async" />
             </div>
           ) : isSecret ? (
             <div className="service-img-icon" aria-hidden="true">
@@ -258,7 +258,7 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
                   alt={title}
                   className="service-img service-img-secret"
                   loading="eager"
-                  fetchPriority="high"
+                  fetchpriority="high"
                   decoding="async"
                 />
             </div>
@@ -274,7 +274,7 @@ export function LumenCard({ title, mobileTitle, state, icon, index, className = 
                   alt={title}
                   className={`service-img service-img-${icon}`}
                   loading="eager"
-                  fetchPriority="high"
+                  fetchpriority="high"
                   decoding="async"
                 />
             </div>

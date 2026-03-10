@@ -12,6 +12,7 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
     const tireFrontRef = useRef(null);
     const tireBackRef = useRef(null);
     const [isMobileLayout, setIsMobileLayout] = useState(false);
+    const [isCompactDesktop, setIsCompactDesktop] = useState(false);
     const [isLowPerformance, setIsLowPerformance] = useState(false);
 
     // Icon Refs
@@ -232,6 +233,16 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
     }, []);
 
     useEffect(() => {
+        const syncLayout = () => {
+            const isDesktop = window.innerWidth >= 769;
+            setIsCompactDesktop(isDesktop && (window.innerWidth <= 1500 || window.innerHeight <= 900));
+        };
+        syncLayout();
+        window.addEventListener("resize", syncLayout);
+        return () => window.removeEventListener("resize", syncLayout);
+    }, []);
+
+    useEffect(() => {
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const cpuCores = navigator.hardwareConcurrency || 8;
         const ramGb = navigator.deviceMemory || 8;
@@ -240,7 +251,9 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
 
     const markerPositions = isMobileLayout
         ? (isRTL ? ["94%", "74%", "54%", "34%", "14%"] : ["6%", "26%", "46%", "66%", "86%"])
-        : (isRTL ? ["100%", "80%", "60%", "40%", "20%"] : ["0%", "20%", "40%", "60%", "80%"]);
+        : isCompactDesktop
+            ? (isRTL ? ["100%", "80%", "60%", "40%", "20%"] : ["0%", "20%", "40%", "60%", "80%"])
+            : (isRTL ? ["94%", "74%", "54%", "34%", "14%"] : ["6%", "26%", "46%", "66%", "86%"]);
     const milestoneIcons = ["/crown3d.webp", "/diamond3d.webp", "/cam3d.webp", "/order3d.webp", "/shield3d.webp"];
 
     if (isMobileLayout) {
@@ -381,6 +394,14 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
                         const iconRefs = [geoRef, lightningRef, handshakeRef, inspectionRef, guaranteeRef];
                         const icons = milestoneIcons;
                         const isFirst = i === 0;
+                        const compactTitleWidth = isCompactDesktop && ms.key !== "guarantee"
+                            ? (isFirst ? (isRuLanguage ? "138px" : "124px") : (isRuLanguage ? "124px" : "112px"))
+                            : undefined;
+                        const compactTitleWhiteSpace = isCompactDesktop && ms.key !== "guarantee"
+                            ? "normal"
+                            : isRuLanguage
+                                ? "normal"
+                                : "nowrap";
                         return (
                             <div key={ms.key} className="milestone-marker" style={{ position: "absolute", left: markerPositions[i], bottom: "-1px", width: "12px", height: "12px", borderRadius: "50%", background: "#fff", transform: "translate(-50%, 50%)", zIndex: 20 }}>
                                 <div className="journey-icon-wrap" style={{ position: "absolute", bottom: "25px", left: "50%", transform: "translateX(-50%)", textAlign: "center", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -391,11 +412,11 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
                                     style={{
                                         position: "absolute",
                                         top: "25px",
-                                        left: isFirst && !isRTL ? "0" : "50%",
-                                        right: isFirst && isRTL ? "0" : "auto",
-                                        transform: isFirst ? "none" : "translateX(-50%)",
-                                        textAlign: isFirst && !isRTL ? "left" : isFirst && isRTL ? "right" : "center",
-                                        width: isRuLanguage ? "210px" : undefined
+                                        left: "50%",
+                                        right: "auto",
+                                        transform: "translateX(-50%)",
+                                        textAlign: "center",
+                                        width: isCompactDesktop ? compactTitleWidth : isRuLanguage ? "210px" : undefined
                                     }}
                                 >
                                     <h4
@@ -403,26 +424,29 @@ export default function JourneyMap({ language = "EN", isRTL = false, performance
                                         style={{
                                             margin: "0 0 0.3rem 0",
                                             color: "#fff",
-                                            whiteSpace: isRuLanguage ? "normal" : "nowrap",
+                                            whiteSpace: compactTitleWhiteSpace,
                                             fontFamily: "'Montserrat', sans-serif",
                                             fontWeight: 600,
                                             fontSize: isRuLanguage ? "1.08rem" : undefined,
-                                            lineHeight: isRuLanguage ? "1.18" : undefined
+                                            lineHeight: isCompactDesktop ? "1.12" : isRuLanguage ? "1.18" : undefined,
+                                            textWrap: isCompactDesktop && ms.key !== "guarantee" ? "balance" : undefined
                                         }}
                                     >
                                         {ms.title}
                                     </h4>
-                                    <p
-                                        className="journey-desc"
-                                        style={{
-                                            color: "#888",
-                                            margin: 0,
-                                            lineHeight: "1.3",
-                                            fontSize: isRuLanguage ? "0.96rem" : undefined
-                                        }}
-                                    >
-                                        {ms.text}
-                                    </p>
+                                    {!isCompactDesktop ? (
+                                        <p
+                                            className="journey-desc"
+                                            style={{
+                                                color: "#888",
+                                                margin: 0,
+                                                lineHeight: "1.3",
+                                                fontSize: isRuLanguage ? "0.96rem" : undefined
+                                            }}
+                                        >
+                                            {ms.text}
+                                        </p>
+                                    ) : null}
                                 </div>
                             </div>
                         );

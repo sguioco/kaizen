@@ -277,20 +277,34 @@ button {
   gap: 1.8rem;
 }
 
-.logo-block img {
-  height: 56px;
-}
-
 .logo-block {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: clamp(0.45rem, 0.9vw, 0.8rem);
+}
+
+.logo-block > img:first-child {
+  height: clamp(40px, 3.2vw, 56px);
 }
 
 .logo-wordmark {
-  height: 25px;
+  height: clamp(16px, 1.45vw, 25px);
   width: auto;
   opacity: 0.9;
+}
+
+@media (max-width: 1400px) and (min-width: 781px) {
+  .header-inner {
+    gap: 1.1rem;
+  }
+
+  .logo-block > img:first-child {
+    height: clamp(36px, 2.9vw, 48px);
+  }
+
+  .logo-wordmark {
+    height: clamp(14px, 1.2vw, 20px);
+  }
 }
 
 .nav-links {
@@ -962,10 +976,11 @@ button {
 
 /* Plan cards */
 .membership-plans-wrapper {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
+  align-items: end;
   justify-content: flex-start;
-  gap: 2rem;
+  gap: clamp(1rem, 2vw, 2rem);
   margin: 0 0 3rem;
 }
 
@@ -976,17 +991,19 @@ button {
   flex: 1;
   /* Take up main space */
   max-width: 720px;
+  min-width: 0;
 }
 
 .membership-image-container {
   display: none;
   /* hidden on mobile */
-  --infinite-shift-x: -200px;
-  --infinite-shift-y: 0px;
-  --infinite-scale: 1.5;
-  --infinite-shift-x-rtl: -1000px;
-  --infinite-shift-y-rtl: 0px;
-  --infinite-scale-rtl: 1.5;
+  --infinite-figure-width: clamp(24rem, 38vw, 42rem);
+  --infinite-shift-x: clamp(-8rem, -5.5vw, -3rem);
+  --infinite-shift-y: clamp(0.2rem, 0.45vw, 0.65rem);
+  --infinite-scale: 1;
+  --infinite-shift-x-rtl: clamp(3rem, 5.5vw, 8rem);
+  --infinite-shift-y-rtl: clamp(0.2rem, 0.45vw, 0.65rem);
+  --infinite-scale-rtl: 1;
 }
 
 @media (min-width: 1024px) {
@@ -995,14 +1012,15 @@ button {
   }
 
   .membership-image-container {
-    display: block;
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    display: flex;
+    position: relative;
+    align-self: end;
+    justify-content: flex-end;
     z-index: 0;
-    width: 45%;
-    max-width: 500px;
-    padding-bottom: 0.5rem;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding-bottom: 0;
     pointer-events: none;
   }
 
@@ -1013,8 +1031,10 @@ button {
 
   .membership-infinity-group {
     position: relative;
-    width: max-content;
-    transform-origin: center center;
+    width: var(--infinite-figure-width);
+    max-width: none;
+    margin-left: auto;
+    transform-origin: center right;
     transform: translate(var(--infinite-shift-x), var(--infinite-shift-y)) scale(var(--infinite-scale));
     will-change: transform;
   }
@@ -1032,8 +1052,8 @@ button {
   .membership-infinity-base {
     position: relative;
     z-index: 1;
-    width: auto;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
   }
 
   .membership-infinity-overlay {
@@ -1062,6 +1082,91 @@ button {
     mask-size: 100% 100%;
     filter: drop-shadow(0 0 10px rgba(255, 128, 128, 0.8)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.52));
     animation: membership-infinity-red-flow 5.8s linear infinite;
+  }
+}
+
+@media (max-width: 1460px) and (min-width: 781px) {
+  .section.services {
+    --services-grid-gap: clamp(0.45rem, 0.8vw, 0.95rem);
+    --services-card-base-height: clamp(10.6rem, 14.2vw, 15.8rem);
+    --services-card-padding: clamp(0.5rem, 0.7vw, 0.8rem);
+    --services-card-title-size: clamp(0.72rem, 0.82vw, 0.98rem);
+    --services-icon-top: clamp(2.55rem, 3.7vw, 4.1rem);
+    --services-icon-box-width: clamp(4rem, 5.4vw, 5.9rem);
+    --services-icon-box-height: clamp(2.5rem, 3.5vw, 3.7rem);
+    --services-icon-scale-factor: 0.9;
+    --services-icon-offset-factor: 0.82;
+  }
+
+  .service-title-desktop {
+    display: none;
+  }
+
+  .service-title-mobile {
+    display: inline;
+  }
+
+  .services-wheel {
+    right: -34%;
+    top: 11%;
+    width: min(860px, 74vw);
+    opacity: 0.12;
+  }
+
+  .membership-plans-wrapper {
+    grid-template-columns: minmax(0, 1.06fr) minmax(18rem, 0.86fr);
+  }
+
+  .membership-image-container {
+    --infinite-figure-width: clamp(20rem, 31vw, 30rem);
+    --infinite-shift-x: clamp(-5.25rem, -4vw, -2rem);
+    --infinite-shift-y: clamp(0.15rem, 0.35vw, 0.45rem);
+    --infinite-shift-x-rtl: clamp(2rem, 4vw, 5.25rem);
+    --infinite-shift-y-rtl: clamp(0.15rem, 0.35vw, 0.45rem);
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 781px) {
+  .section.services {
+    --services-grid-gap: 0.45rem;
+    --services-card-base-height: clamp(9.8rem, 13.4vw, 12.4rem);
+    --services-card-padding: 0.45rem;
+    --services-card-radius: 1rem;
+    --services-card-title-size: clamp(0.68rem, 0.95vw, 0.84rem);
+    --services-icon-top: clamp(2.3rem, 3.5vw, 3.3rem);
+    --services-icon-box-width: clamp(3.4rem, 4.6vw, 4.5rem);
+    --services-icon-box-height: clamp(2.1rem, 3vw, 2.85rem);
+    --services-icon-scale-factor: 0.78;
+    --services-icon-offset-factor: 0.72;
+  }
+
+  .services-wheel {
+    right: -42%;
+    top: 10%;
+    width: min(760px, 72vw);
+    opacity: 0.1;
+  }
+
+  .membership-plans-wrapper {
+    gap: 1rem;
+  }
+
+  .membership-image-container {
+    --infinite-figure-width: clamp(16rem, 27vw, 22rem);
+    --infinite-shift-x: clamp(-3.5rem, -2.8vw, -1.2rem);
+    --infinite-shift-y: 0.25rem;
+    --infinite-shift-x-rtl: clamp(1.2rem, 2.8vw, 3.5rem);
+    --infinite-shift-y-rtl: 0.25rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .membership-plans-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .membership-plans {
+    max-width: none;
   }
 }
 
@@ -1309,16 +1414,27 @@ button {
   isolation: isolate;
   /* Removed overflow hidden to allow wrapper to handle it */
   /* Services/Pricing tuning controls */
-  --services-card-base-height: 19.2rem;
+  --services-grid-columns: 6;
+  --services-grid-gap: clamp(0.55rem, 1vw, 1.5rem);
+  --services-card-base-height: clamp(11.2rem, 15.4vw, 19.2rem);
   --services-selected-card-extra-height: 1rem;
   --services-selected-card-height: calc(var(--services-card-base-height) + var(--services-selected-card-extra-height));
   --services-selected-card-bottom-padding: calc(1rem + var(--services-selected-card-extra-height));
   --services-selected-card-lift: -6px;
   --services-selected-frame-width: 1px;
   --services-pricing-overlap: -3.6rem;
-  --services-pricing-top-padding: 2rem;
+  --services-pricing-top-padding: clamp(0.55rem, 1.1vw, 1.2rem);
+  --services-pricing-gap: clamp(0.45rem, 0.9vw, 0.75rem);
   --services-pricing-border-width: 1px;
   --services-pricing-border-color: rgba(250, 0, 0, 0.5);
+  --services-card-padding: clamp(0.55rem, 0.85vw, 1rem);
+  --services-card-radius: clamp(1rem, 1.6vw, 1.8rem);
+  --services-card-title-size: clamp(0.74rem, 0.9vw, 1.2rem);
+  --services-icon-top: clamp(2.8rem, 4vw, 5.2rem);
+  --services-icon-box-width: clamp(4.5rem, 6.8vw, 8.125rem);
+  --services-icon-box-height: clamp(2.8rem, 4vw, 4.75rem);
+  --services-icon-scale-factor: 1;
+  --services-icon-offset-factor: 1;
 }
 
 .section.services .section-inner {
@@ -1465,9 +1581,10 @@ button {
 
 .services-grid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  justify-items: center;
+  gap: var(--services-grid-gap);
+  grid-template-columns: repeat(var(--services-grid-columns), minmax(0, 1fr));
+  align-items: start;
+  justify-items: stretch;
 }
 
 .lumen-card {
@@ -1478,11 +1595,11 @@ button {
     0 1rem 0.2rem -1rem #0000, 0 0 0 1px #fff3, 0 4px 4px 0 #0004,
     0 0 0 1px #333;
   width: 100%;
-  max-width: 18rem;
+  max-width: none;
   height: var(--services-card-base-height, 19.2rem);
-  border-radius: 1.8rem;
+  border-radius: var(--services-card-radius);
   color: #fff;
-  padding: 1rem;
+  padding: var(--services-card-padding);
   display: flex;
   flex-direction: column;
   justify-content: end;
@@ -1490,6 +1607,7 @@ button {
   overflow: hidden;
   /* Prevent cards from stretching if one gets taller */
   align-self: start;
+  min-width: 0;
 }
 
 .lumen-card::before {
@@ -1733,7 +1851,7 @@ button {
 
 .lumen-card .content .icon {
   position: absolute;
-  top: 5.2rem;
+  top: var(--services-icon-top);
   left: 0;
   right: 0;
   margin: auto;
@@ -1744,8 +1862,8 @@ button {
 
 .lumen-card .auto-icon {
   position: relative;
-  width: 130px;
-  height: 76px;
+  width: var(--services-icon-box-width);
+  height: var(--services-icon-box-height);
   display: grid;
   place-items: center;
 }
@@ -1759,12 +1877,12 @@ button {
 
 .lumen-card .auto-icon .auto-off {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(calc(-20px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
 }
 
 .lumen-card .auto-icon .auto-on {
   opacity: 0;
-  transform: translateY(0) scale(1);
+  transform: translateY(calc(-20px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
 }
 
 .lumen-card.auto:hover .auto-icon .auto-on {
@@ -1773,7 +1891,7 @@ button {
 
 .lumen-card.auto:hover .auto-icon .auto-off {
   opacity: 0;
-  transform: translateY(0) scale(1);
+  transform: translateY(calc(-20px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
 }
 
 .lumen-card .content .bottom {
@@ -1786,8 +1904,10 @@ button {
 .lumen-card .content .bottom h4 {
   margin: 0;
   margin-bottom: 1rem;
-  font-size: 1.2rem;
+  font-size: var(--services-card-title-size);
+  line-height: 1.12;
   color: #ccc;
+  text-wrap: balance;
 }
 
 .service-title-desktop {
@@ -2033,7 +2153,7 @@ button {
 /* Pricing slide container */
 .pricing-slide.open {
   grid-template-rows: 1fr;
-  margin-top: 1rem;
+  margin-top: var(--services-pricing-gap, 1rem);
   margin-bottom: 2rem;
   position: relative;
   z-index: 5;
@@ -4123,9 +4243,9 @@ body.y-widget-open {
 /* Service Image Icons */
 .service-img-icon {
   position: relative;
-  width: 130px;
+  width: var(--services-icon-box-width);
   /* Match .auto-icon width */
-  height: 76px;
+  height: var(--services-icon-box-height);
   /* Match .auto-icon height */
   display: grid;
   place-items: center;
@@ -4139,31 +4259,36 @@ body.y-widget-open {
 }
 
 .service-img-secret {
-  max-height: 99px;
+  max-height: calc(99px * var(--services-icon-scale-factor));
   opacity: 0.92;
   filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.12)) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.6));
 }
 
 /* Specific adjustments per image */
 .service-img-moto {
-  transform: scale(0.85) translateY(-20px);
+  transform: translateY(calc(-20px * var(--services-icon-offset-factor))) scale(calc(0.85 * var(--services-icon-scale-factor)));
+  transform-origin: center center;
 }
 
 .service-img-home {
-  transform: scale(0.75) translateY(-40px);
+  transform: translateY(calc(-40px * var(--services-icon-offset-factor))) scale(calc(0.75 * var(--services-icon-scale-factor)));
+  transform-origin: center center;
 }
 
 .service-img-auto {
   /* Adjust scale and position as needed */
-  transform: scale(1) translateY(-20px);
+  transform: translateY(calc(-20px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
+  transform-origin: center center;
 }
 
 .service-img-motorhome {
-  transform: scale(1) translateY(-10px);
+  transform: translateY(calc(-10px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
+  transform-origin: center center;
 }
 
 .service-img-yacht {
-  transform: scale(1) translateY(0);
+  transform: translateY(calc(0px * var(--services-icon-offset-factor))) scale(var(--services-icon-scale-factor));
+  transform-origin: center center;
 }
 
 /* =========================================
