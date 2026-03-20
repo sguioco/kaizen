@@ -484,12 +484,81 @@ const membershipPlans = [
     title: { EN: "Membership for Motorcycle", RU: "Членство — Мотоцикл", AR: "عضوية الدراجات" },
     price: { amount: 2990, currency: "AED" },
     perks: {
-      EN: ["10 scheduled services", "weeks of flawless condition", "Priority booking", "Personal detailing manager"],
-      RU: ["10 запланированных услуг", "20 недель безупречного состояния", "Приоритетная запись", "Персональный менеджер"],
-      AR: ["10 خدمات مجدولة", "20 أسبوعًا من الحالة المثالية", "أولوية الحجز", "مدير تفصيل شخصي"]
+      EN: ["scheduled services", "weeks of flawless condition", "Priority booking", "Personal detailing manager"],
+      RU: ["запланированных услуг", "недель безупречного состояния", "Приоритетная запись", "Персональный менеджер"],
+      AR: ["خدمات مجدولة", "أسبوعًا من الحالة المثالية", "أولوية الحجز", "مدير تفصيل شخصي"]
     }
   }
 ];
+
+const membershipPackages = {
+  title: {
+    EN: "Membership packages",
+    RU: "Membership packages",
+    AR: "باقات العضوية"
+  },
+  subtitle: {
+    EN: "Flexible maintenance options for private clients",
+    RU: "Гибкие maintenance-пакеты для частных клиентов",
+    AR: "خيارات صيانة مرنة للعملاء الخاصين"
+  },
+  items: [
+    {
+      id: "pkg-4-silver",
+      label: {
+        EN: "4 Silver",
+        RU: "4 Silver",
+        AR: "4 Silver"
+      },
+      price: 2000
+    },
+    {
+      id: "pkg-10-refresh",
+      label: {
+        EN: "10 Refresh",
+        RU: "10 Refresh",
+        AR: "10 Refresh"
+      },
+      price: 2000
+    },
+    {
+      id: "pkg-1-silver-10-refresh",
+      label: {
+        EN: "1 Silver + 10 Refresh",
+        RU: "1 Silver + 10 Refresh",
+        AR: "1 Silver + 10 Refresh"
+      },
+      price: 2500
+    },
+    {
+      id: "pkg-1-gold-10-refresh",
+      label: {
+        EN: "1 Gold + 10 Refresh",
+        RU: "1 Gold + 10 Refresh",
+        AR: "1 Gold + 10 Refresh"
+      },
+      price: 2900
+    },
+    {
+      id: "pkg-2-silver-20-refresh",
+      label: {
+        EN: "2 Silver + 20 Refresh",
+        RU: "2 Silver + 20 Refresh",
+        AR: "2 Silver + 20 Refresh"
+      },
+      price: 4500
+    },
+    {
+      id: "pkg-2-gold-20-refresh",
+      label: {
+        EN: "2 Gold + 20 Refresh",
+        RU: "2 Gold + 20 Refresh",
+        AR: "2 Gold + 20 Refresh"
+      },
+      price: 5200
+    }
+  ]
+};
 
 const membershipCopy = {
   kicker: { EN: "Membership", RU: "Членство", AR: "العضوية" },
@@ -514,8 +583,8 @@ const membershipCopy = {
     AR: "كل أسبوعين، نقوم بعناية باستعادة وحماية وتحسين سيارتك."
   },
   stats: {
-    services: { EN: "10 scheduled services", RU: "10 запланированных услуг", AR: "10 خدمات مجدولة" },
-    weeks: { EN: "20 weeks of flawless condition", RU: "20 недель безупречного состояния", AR: "20 أسبوعًا من الحالة المثالية" }
+    services: { EN: "scheduled services", RU: "запланированных услуг", AR: "خدمات مجدولة" },
+    weeks: { EN: "weeks of flawless condition", RU: "недель безупречного состояния", AR: "أسبوعًا من الحالة المثالية" }
   },
   closing: {
     EN: "Because a truly exceptional car is not cleaned occasionally.",
@@ -523,6 +592,19 @@ const membershipCopy = {
     AR: "لأن السيارة الاستثنائية حقًا لا تُنظَّف أحيانًا."
   }
 };
+
+const normalizeFeaturableId = (value = "") =>
+  value.trim().replace(/^featurable-/i, "");
+
+const DEFAULT_GOOGLE_REVIEWS_URL =
+  "https://maps.google.com/?q=Kaizen+Detailers+-+Madinat+Hind+4+-+Damac+Hills+-+Dubai&ftid=0xa84886aa5ca2212b:0xff2b4b14c6b47169";
+
+const googleReviewsProfileUrl =
+  import.meta.env.VITE_GOOGLE_REVIEWS_URL || DEFAULT_GOOGLE_REVIEWS_URL;
+
+const featurableWidgetId = normalizeFeaturableId(
+  import.meta.env.VITE_FEATURABLE_ID || ""
+);
 
 const certifiedBrands = [
   { name: "Koch Chemie", logo: "/koch.png" },
@@ -532,8 +614,7 @@ const certifiedBrands = [
 ];
 
 const trustLinks = {
-  // Replace with your exact Google Business Profile reviews link if you have it.
-  googleReviews: "https://www.google.com/maps/search/?api=1&query=Kaizen%20Detailers%20Dubai%20reviews",
+  googleReviews: googleReviewsProfileUrl,
   instagram: "https://www.instagram.com/kaizen_detailers_uae"
 };
 
@@ -691,9 +772,9 @@ const uiCopy = {
     },
     whatsapp: { EN: "WhatsApp", RU: "WhatsApp", AR: "واتساب" },
     rights: {
-      EN: "© 2026 Kaizen Detailers. All rights reserved.",
-      RU: "© 2026 Kaizen Detailers. Все права защищены.",
-      AR: "© 2026 Kaizen Detailers. جميع الحقوق محفوظة."
+      EN: "© KAIZEN DETAILERS PARKING CAR WASHING L.L.C. All rights reserved.",
+      RU: "© KAIZEN DETAILERS PARKING CAR WASHING L.L.C. Все права защищены.",
+      AR: "© KAIZEN DETAILERS PARKING CAR WASHING L.L.C. جميع الحقوق محفوظة."
     }
   },
   accessibility: {
@@ -1071,7 +1152,7 @@ export default function App() {
   const whatsappHref = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
     whatsappMessage
   )}`;
-  const isGoogleReviewsReady = false;
+  const isGoogleReviewsReady = Boolean(featurableWidgetId);
   const portfolioCategoryOrder = portfolioItems.map((item) => item.category);
   const coverageEdgeMarkers = [
     // Per-city tuning:
@@ -1644,7 +1725,16 @@ export default function App() {
                         <img src="/moto.webp" alt="" loading="lazy" decoding="async" style={{ width: 90, opacity: 0.8 }} />
                       )}
                     </div>
-                    <h3 className="membership-card-title">{t(plan.title)}</h3>
+                    <h3 className="membership-card-title">
+                      {plan.id === "auto" && language === "EN" ? (
+                        <>
+                          <span className="membership-card-title-line">Membership for</span>{" "}
+                          <span className="membership-card-title-line membership-card-title-line-secondary">Auto</span>
+                        </>
+                      ) : (
+                        t(plan.title)
+                      )}
+                    </h3>
                     <div className="membership-card-price">
                       <span className="membership-price-amount">
                         <CountUp from={0} to={plan.price.amount} separator="," direction="up" duration={1.2} className="membership-price-value" startCounting />
@@ -1667,6 +1757,41 @@ export default function App() {
                   </article>
                 ))}
               </div>
+              <article className="membership-packages-card reveal-item">
+                <div className="membership-packages-head">
+                  <h3 className="membership-packages-title">{t(membershipPackages.title)}</h3>
+                  <p className="membership-packages-subtitle">{t(membershipPackages.subtitle)}</p>
+                </div>
+                <div className="membership-packages-list">
+                  {membershipPackages.items.map((item) => (
+                    <div key={item.id} className="membership-package-row">
+                      <span className="membership-package-label">
+                        {t(item.label)}
+                      </span>
+                      <span className="membership-package-price">
+                        <CountUp
+                          from={0}
+                          to={item.price}
+                          separator=","
+                          direction="up"
+                          duration={1}
+                          className="membership-package-price-value"
+                          startCounting
+                        />
+                        <span className="membership-package-price-currency"> AED</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary membership-card-btn membership-packages-btn"
+                >
+                  {t(uiCopy.nav.bookNow)}
+                </a>
+              </article>
               <div className="membership-image-container reveal-item desktop-only">
                 <div className="membership-infinity-group">
                   <img
@@ -1824,7 +1949,7 @@ export default function App() {
                       >
                         <ReactGoogleReviews
                           layout="carousel"
-                          featurableId="featurable-b1506bd1-b1ca-442e-b4b1-95314643ba77"
+                          featurableId={featurableWidgetId}
                           maxItems={5}
                           carouselSpeed={3200}
                         />
@@ -1952,14 +2077,33 @@ export default function App() {
         <div className="footer-grid">
           <div>
             <h4>{t(uiCopy.footer.contact)}</h4>
-            <p>
-              <span className="footer-contact-label">Phone: </span>
-              +971 54 372 0101
-            </p>
-            <p className="footer-email">
-              <span className="footer-contact-label">Email: </span>
-              <a href="mailto:kaizen.detailers.uae@gmail.com">kaizen.detailers.uae@gmail.com</a>
-            </p>
+            <div className="footer-contact-list">
+              <div className="footer-contact-item">
+                <span className="footer-contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.63 2.63a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.45-1.29a2 2 0 0 1 2.11-.45c.85.3 1.73.51 2.63.63A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </span>
+                <a className="footer-contact-text" href="tel:+971543720101">+971 54 372 0101</a>
+              </div>
+              <div className="footer-contact-item">
+                <span className="footer-contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.63 2.63a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.45-1.29a2 2 0 0 1 2.11-.45c.85.3 1.73.51 2.63.63A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </span>
+                <a className="footer-contact-text" href="tel:+971563285050">+971 56 328 5050</a>
+              </div>
+              <div className="footer-contact-item footer-email">
+                <span className="footer-contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                    <path d="m22 6-10 7L2 6" />
+                  </svg>
+                </span>
+                <a className="footer-contact-text" href="mailto:kaizen.detailers.uae@gmail.com">kaizen.detailers.uae@gmail.com</a>
+              </div>
+            </div>
           </div>
           <div>
             <h4>{t(uiCopy.footer.social)}</h4>
@@ -1990,6 +2134,15 @@ export default function App() {
           </div>
         </div>
         <div className="footer-bottom">
+          <span className="footer-bottom-address">
+            <span className="footer-bottom-address-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 21s-6-5.33-6-11a6 6 0 1 1 12 0c0 5.67-6 11-6 11z" />
+                <circle cx="12" cy="10" r="2.25" />
+              </svg>
+            </span>
+            <span>AL DIYAR - 107, 1457 Dubai</span>
+          </span>
           <span>{t(uiCopy.footer.rights)}</span>
         </div>
       </footer>
