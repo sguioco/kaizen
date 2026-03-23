@@ -1255,7 +1255,7 @@ export default function App() {
     return () => window.clearTimeout(timeoutId);
   }, []);
 
-  const handleOpenBooking = () => {
+  const handleOpenBooking = (url = ALTEGIO_BOOKING_URL) => {
     const getScrollbarSize = () => {
       const probe = document.createElement("div");
       probe.style.width = "120px";
@@ -1271,7 +1271,7 @@ export default function App() {
 
     const tryOpen = (attempt = 0) => {
       if (window.yWidget?.show) {
-        window.yWidget.show(ALTEGIO_BOOKING_URL);
+        window.yWidget.show(url);
         window.setTimeout(() => {
           const scrollbarSize = getScrollbarSize() + 2;
           const widgetBlock = document.querySelector(".yWidgetBlock-altegio");
@@ -1746,14 +1746,13 @@ export default function App() {
                         <li key={perk}>{perk}</li>
                       ))}
                     </ul>
-                    <a
-                      href={whatsappHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
                       className="btn btn-primary membership-card-btn"
+                      onClick={handleOpenBooking}
                     >
                       {t(uiCopy.nav.bookNow)}
-                    </a>
+                    </button>
                   </article>
                 ))}
               </div>
@@ -1783,14 +1782,13 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
                   className="btn btn-primary membership-card-btn membership-packages-btn"
+                  onClick={handleOpenBooking}
                 >
                   {t(uiCopy.nav.bookNow)}
-                </a>
+                </button>
               </article>
               <div className="membership-image-container reveal-item desktop-only">
                 <div className="membership-infinity-group">
@@ -1913,11 +1911,11 @@ export default function App() {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.67c-.38-.2-.68-.6-.68-1.15V1.48c0-.55.3-.95.68-1.15l11.6 11.67L3.18 23.67zM15.73 15.5l-2.93-2.95 2.93-2.95 3.34 1.9c.95.54.95 1.56 0 2.1l-3.34 1.9zM12.03 11.78L4.14.72l10.82 6.15-2.93 4.91zM4.14 23.28l7.89-11.06 2.93 2.95-10.82 8.11z" /></svg>
                   Google Play
                 </a>
-                <a href="https://www.tiktok.com/@kaizen_detailers_uae" target="_blank" rel="noopener noreferrer" className="app-badge">
+                <a href="https://www.tiktok.com/@kaizen.detailers?_r=1&_t=ZS-943NjVkSflk" target="_blank" rel="noopener noreferrer" className="app-badge">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.17a8.16 8.16 0 004.76 1.53V7.25a4.82 4.82 0 01-1-.56z" /></svg>
                   TikTok
                 </a>
-                <a href="https://www.snapchat.com/add/kaizen_detailers" target="_blank" rel="noopener noreferrer" className="app-badge">
+                <a href="https://snapchat.com/t/HEebtCIy" target="_blank" rel="noopener noreferrer" className="app-badge">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.07 2c2.76 0 4.39 1.86 4.85 3.78.24 1.01.16 2.02.08 2.86l-.04.39c-.02.21-.04.41-.04.57 0 .3.13.48.42.6.23.1.48.14.72.18l.14.03c.65.13 1.38.28 1.87.69.32.27.48.62.44 1-.07.65-.76 1.06-1.42 1.33-.09.04-.18.07-.26.11-.56.23-1.08.5-1.16.93-.03.17 0 .35.1.53.67 1.15 1.55 2.07 2.62 2.74.36.22.75.39 1.11.5.38.12.55.38.5.73-.07.42-.52.72-.86.87-.52.23-1.07.35-1.52.55-.17.08-.32.2-.45.38-.22.28-.24.63-.41.95-.2.37-.56.63-1.05.63-.32 0-.66-.1-1.05-.24-.6-.22-1.28-.47-2.28-.36-.93.1-1.57.5-2.14.86-.6.38-1.16.73-1.92.73h-.05c-.76 0-1.33-.36-1.92-.73-.57-.36-1.21-.76-2.14-.86-1-.11-1.68.14-2.28.36-.39.14-.73.24-1.05.24-.54 0-.87-.31-1.05-.63-.17-.32-.19-.67-.41-.95-.13-.18-.28-.3-.45-.38-.45-.2-1-.32-1.52-.55-.34-.15-.79-.45-.86-.87-.05-.35.12-.61.5-.73.36-.11.75-.28 1.11-.5 1.07-.67 1.95-1.59 2.62-2.74.1-.18.13-.36.1-.53-.08-.43-.6-.7-1.16-.93-.08-.04-.17-.07-.26-.11-.66-.27-1.35-.68-1.42-1.33-.04-.38.12-.73.44-1 .49-.41 1.22-.56 1.87-.69l.14-.03c.24-.04.49-.08.72-.18.29-.12.42-.3.42-.6 0-.16-.02-.36-.04-.57l-.04-.39c-.08-.84-.16-1.85.08-2.86C7.68 3.86 9.31 2 12.07 2z" /></svg>
                   Snapchat
                 </a>
