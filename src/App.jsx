@@ -596,6 +596,8 @@ const membershipCopy = {
 const normalizeFeaturableId = (value = "") =>
   value.trim().replace(/^featurable-/i, "");
 
+const DEFAULT_FEATURABLE_WIDGET_ID = "b1506bd1-b1ca-442e-b4b1-95314643ba77";
+
 const DEFAULT_GOOGLE_REVIEWS_URL =
   "https://maps.google.com/?q=Kaizen+Detailers+-+Madinat+Hind+4+-+Damac+Hills+-+Dubai&ftid=0xa84886aa5ca2212b:0xff2b4b14c6b47169";
 
@@ -603,7 +605,7 @@ const googleReviewsProfileUrl =
   import.meta.env.VITE_GOOGLE_REVIEWS_URL || DEFAULT_GOOGLE_REVIEWS_URL;
 
 const featurableWidgetId = normalizeFeaturableId(
-  import.meta.env.VITE_FEATURABLE_ID || ""
+  import.meta.env.VITE_FEATURABLE_ID || DEFAULT_FEATURABLE_WIDGET_ID
 );
 
 const certifiedBrands = [
