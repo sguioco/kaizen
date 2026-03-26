@@ -3294,10 +3294,13 @@ button {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
+  align-items: start;
 }
 
 .trust-widgets .social-block {
   padding: 0.5rem 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .trust-widgets .social-block h3 {
@@ -3608,6 +3611,8 @@ body.y-widget-open {
 
 .social-body {
   margin-top: 1rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .widget-fallback {

@@ -1950,7 +1950,7 @@ export default function App() {
                         <ReactGoogleReviews
                           layout="carousel"
                           featurableId={featurableWidgetId}
-                          maxItems={5}
+                          maxItems={2}
                           carouselSpeed={3200}
                         />
                       </Suspense>

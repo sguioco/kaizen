@@ -3041,7 +3041,7 @@ function App() {
                     {
                       layout: "carousel",
                       featurableId: featurableWidgetId,
-                      maxItems: 5,
+                      maxItems: 2,
                       carouselSpeed: 3200
                     }
                   )
