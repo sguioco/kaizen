@@ -5,8 +5,11 @@ const ADMIN_PASSWORD = "DetailersK00";
 const STORAGE_KEYS = {
   heroVideo: "kaizen_admin_heroVideo",
   packages: "kaizen_admin_packages",
+  membership: "kaizen_admin_membership",
   portfolio: "kaizen_admin_portfolio",
 };
+
+const LANGS = ["EN", "RU", "AR"];
 
 function useAdminData(key, defaultValue) {
   const [data, setData] = useState(() => {
@@ -29,7 +32,7 @@ function useAdminData(key, defaultValue) {
 /* ── Hero Video Tab ─────────────────────────────────── */
 function HeroVideoEditor() {
   const [video, setVideo] = useAdminData(STORAGE_KEYS.heroVideo, {
-    url: "/videoplayback.mp4",
+    url: "/KaizenCarDetailing.mp4",
   });
   const [draft, setDraft] = useState(video.url);
   const [file, setFile] = useState(null);
@@ -60,7 +63,7 @@ function HeroVideoEditor() {
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         className="admin-input"
-        placeholder="/videoplayback.mp4 or https://..."
+        placeholder="/KaizenCarDetailing.mp4 or https://..."
       />
 
       <label className="admin-label" style={{ marginTop: "1rem" }}>Or upload file</label>
@@ -170,7 +173,7 @@ function PackageEditor({ pkg, onChange, onRemove, canRemove }) {
             <button className="admin-btn-sm admin-btn-danger" onClick={onRemove}>Remove</button>
           )}
           <div className="admin-lang-tabs">
-            {["EN", "RU", "AR"].map(l => (
+            {LANGS.map(l => (
               <button key={l} className={`admin-lang-tab ${lang === l ? "active" : ""}`} onClick={() => setLang(l)}>{l}</button>
             ))}
           </div>
@@ -356,6 +359,390 @@ function PricingEditor() {
         </button>
         <button className="admin-btn admin-btn-outline" onClick={handleResetAll}>
           Reset all services
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Membership Editor Tab ──────────────────────────── */
+const defaultMembershipPlans = [
+  {
+    id: "auto",
+    icon: "car",
+    title: { EN: "Membership for Auto", RU: "Членство — Авто", AR: "عضوية السيارات" },
+    price: { amount: 3990, currency: "AED" },
+    perks: {
+      EN: ["scheduled services", "weeks of flawless condition", "Priority booking", "Personal detailing manager"],
+      RU: ["10 запланированных услуг", "20 Недель безупречного состояния", "Приоритетная запись", "Персональный менеджер"],
+      AR: ["خدمات مجدولة", "20 أسبوعًا من الحالة المثالية", "أولوية الحجز", "مدير تفصيل شخصي"]
+    }
+  },
+  {
+    id: "moto",
+    icon: "moto",
+    title: { EN: "Membership for Motorcycle", RU: "Членство — Мотоцикл", AR: "عضوية الدراجات" },
+    price: { amount: 2990, currency: "AED" },
+    perks: {
+      EN: ["scheduled services", "weeks of flawless condition", "Priority booking", "Personal detailing manager"],
+      RU: ["запланированных услуг", "недель безупречного состояния", "Приоритетная запись", "Персональный менеджер"],
+      AR: ["خدمات مجدولة", "أسبوعًا من الحالة المثالية", "أولوية الحجز", "مدير تفصيل شخصي"]
+    }
+  }
+];
+
+const defaultMembershipPackages = {
+  title: {
+    EN: "Membership packages",
+    RU: "Membership packages",
+    AR: "باقات العضوية"
+  },
+  subtitle: {
+    EN: "Flexible maintenance options for private clients",
+    RU: "Гибкие maintenance-пакеты для частных клиентов",
+    AR: "خيارات صيانة مرنة للعملاء الخاصين"
+  },
+  items: [
+    { id: "pkg-4-silver", label: { EN: "4 Silver", RU: "4 Silver", AR: "4 Silver" }, price: 2000 },
+    { id: "pkg-10-refresh", label: { EN: "10 Refresh", RU: "10 Refresh", AR: "10 Refresh" }, price: 2000 },
+    { id: "pkg-1-silver-10-refresh", label: { EN: "1 Silver + 10 Refresh", RU: "1 Silver + 10 Refresh", AR: "1 Silver + 10 Refresh" }, price: 2500 },
+    { id: "pkg-1-gold-10-refresh", label: { EN: "1 Gold + 10 Refresh", RU: "1 Gold + 10 Refresh", AR: "1 Gold + 10 Refresh" }, price: 2900 },
+    { id: "pkg-2-silver-20-refresh", label: { EN: "2 Silver + 20 Refresh", RU: "2 Silver + 20 Refresh", AR: "2 Silver + 20 Refresh" }, price: 4500 },
+    { id: "pkg-2-gold-20-refresh", label: { EN: "2 Gold + 20 Refresh", RU: "2 Gold + 20 Refresh", AR: "2 Gold + 20 Refresh" }, price: 5200 }
+  ]
+};
+
+function cloneData(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function buildDefaultMembershipData() {
+  return {
+    plans: cloneData(defaultMembershipPlans),
+    packages: cloneData(defaultMembershipPackages)
+  };
+}
+
+function normalizeLocalizedText(value, fallback = {}) {
+  return LANGS.reduce((result, lang) => {
+    result[lang] = value?.[lang] ?? fallback?.[lang] ?? fallback?.EN ?? "";
+    return result;
+  }, {});
+}
+
+function normalizeLocalizedList(value, fallback = {}) {
+  return LANGS.reduce((result, lang) => {
+    const list = value?.[lang] || fallback?.[lang] || fallback?.EN || [];
+    result[lang] = Array.isArray(list) ? list : [];
+    return result;
+  }, {});
+}
+
+function normalizeMembershipPlan(plan, fallback = {}) {
+  return {
+    id: plan?.id || fallback.id || `membership-plan-${Date.now()}`,
+    icon: plan?.icon || fallback.icon || "car",
+    title: normalizeLocalizedText(plan?.title, fallback.title),
+    price: {
+      amount: Number.isFinite(Number(plan?.price?.amount))
+        ? Number(plan.price.amount)
+        : Number(fallback.price?.amount || 0),
+      currency: plan?.price?.currency || fallback.price?.currency || "AED"
+    },
+    perks: normalizeLocalizedList(plan?.perks, fallback.perks)
+  };
+}
+
+function normalizeMembershipPackageItem(item, fallback = {}) {
+  return {
+    id: item?.id || fallback.id || `membership-package-${Date.now()}`,
+    label: normalizeLocalizedText(item?.label, fallback.label),
+    price: Number.isFinite(Number(item?.price))
+      ? Number(item.price)
+      : Number(fallback.price || 0)
+  };
+}
+
+function normalizeMembershipAdminState(value) {
+  const defaults = buildDefaultMembershipData();
+  const plansSource = Array.isArray(value?.plans) ? value.plans : defaults.plans;
+  const packageSource = value?.packages && typeof value.packages === "object"
+    ? value.packages
+    : defaults.packages;
+
+  return {
+    plans: plansSource.map((plan, index) =>
+      normalizeMembershipPlan(plan, defaults.plans[index] || defaults.plans[0])
+    ),
+    packages: {
+      title: normalizeLocalizedText(packageSource.title, defaults.packages.title),
+      subtitle: normalizeLocalizedText(packageSource.subtitle, defaults.packages.subtitle),
+      items: (Array.isArray(packageSource.items) ? packageSource.items : defaults.packages.items).map(
+        (item, index) => normalizeMembershipPackageItem(item, defaults.packages.items[index])
+      )
+    }
+  };
+}
+
+function createEmptyMembershipPlan() {
+  const uniqueId = `membership-plan-${Date.now()}`;
+  return {
+    id: uniqueId,
+    icon: "car",
+    title: { EN: "New membership", RU: "Новое членство", AR: "عضوية جديدة" },
+    price: { amount: 0, currency: "AED" },
+    perks: { EN: [], RU: [], AR: [] }
+  };
+}
+
+function createEmptyMembershipPackageItem() {
+  return {
+    id: `membership-package-${Date.now()}`,
+    label: { EN: "New package", RU: "Новый пакет", AR: "باقة جديدة" },
+    price: 0
+  };
+}
+
+function MembershipPlanEditor({ plan, onChange, onRemove, canRemove }) {
+  const [lang, setLang] = useState("EN");
+
+  const updateField = (field, value) => {
+    onChange({ ...plan, [field]: value });
+  };
+
+  const updateTitle = (value) => {
+    onChange({ ...plan, title: { ...plan.title, [lang]: value } });
+  };
+
+  const updatePerk = (index, value) => {
+    const list = [...(plan.perks[lang] || [])];
+    list[index] = value;
+    onChange({ ...plan, perks: { ...plan.perks, [lang]: list } });
+  };
+
+  const addPerk = () => {
+    const list = [...(plan.perks[lang] || []), ""];
+    onChange({ ...plan, perks: { ...plan.perks, [lang]: list } });
+  };
+
+  const removePerk = (index) => {
+    const list = (plan.perks[lang] || []).filter((_, i) => i !== index);
+    onChange({ ...plan, perks: { ...plan.perks, [lang]: list } });
+  };
+
+  return (
+    <div className="admin-package-card">
+      <div className="admin-package-header">
+        <h4>{plan.title.EN || plan.id}</h4>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {canRemove && (
+            <button className="admin-btn-sm admin-btn-danger" onClick={onRemove}>Remove</button>
+          )}
+          <div className="admin-lang-tabs">
+            {LANGS.map(l => (
+              <button key={l} className={`admin-lang-tab ${lang === l ? "active" : ""}`} onClick={() => setLang(l)}>{l}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-row">
+        <div>
+          <label className="admin-label">ID</label>
+          <input className="admin-input" value={plan.id || ""} onChange={e => updateField("id", e.target.value)} />
+        </div>
+        <div>
+          <label className="admin-label">Icon</label>
+          <select className="admin-input" value={plan.icon || "car"} onChange={e => updateField("icon", e.target.value)}>
+            <option value="car">Car</option>
+            <option value="moto">Moto</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="admin-row">
+        <div>
+          <label className="admin-label">Title ({lang})</label>
+          <input className="admin-input" value={plan.title[lang] || ""} onChange={e => updateTitle(e.target.value)} />
+        </div>
+        <div>
+          <label className="admin-label">Price</label>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <input
+              className="admin-input"
+              type="number"
+              value={plan.price.amount}
+              onChange={e => updateField("price", { ...plan.price, amount: Number(e.target.value) })}
+            />
+            <input
+              className="admin-input"
+              value={plan.price.currency || "AED"}
+              onChange={e => updateField("price", { ...plan.price, currency: e.target.value })}
+              style={{ maxWidth: 100 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <label className="admin-label" style={{ marginTop: "1rem" }}>Perks ({lang})</label>
+      {(plan.perks[lang] || []).map((perk, i) => (
+        <div key={i} className="admin-list-row">
+          <input className="admin-input" value={perk} onChange={e => updatePerk(i, e.target.value)} />
+          <button className="admin-btn-sm admin-btn-danger" onClick={() => removePerk(i)}>x</button>
+        </div>
+      ))}
+      <button className="admin-btn-sm" onClick={addPerk}>+ Add perk</button>
+    </div>
+  );
+}
+
+function MembershipPackagesEditor({ packages, onChange }) {
+  const [lang, setLang] = useState("EN");
+
+  const updateTitle = (field, value) => {
+    onChange({
+      ...packages,
+      [field]: { ...packages[field], [lang]: value }
+    });
+  };
+
+  const updateItem = (index, updated) => {
+    const items = [...packages.items];
+    items[index] = updated;
+    onChange({ ...packages, items });
+  };
+
+  const removeItem = (index) => {
+    if (packages.items.length <= 1) return;
+    if (!window.confirm("Remove this membership package?")) return;
+    onChange({ ...packages, items: packages.items.filter((_, i) => i !== index) });
+  };
+
+  const addItem = () => {
+    onChange({ ...packages, items: [...packages.items, createEmptyMembershipPackageItem()] });
+  };
+
+  return (
+    <div className="admin-package-card">
+      <div className="admin-package-header">
+        <h4>Membership packages list</h4>
+        <div className="admin-lang-tabs">
+          {LANGS.map(l => (
+            <button key={l} className={`admin-lang-tab ${lang === l ? "active" : ""}`} onClick={() => setLang(l)}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      <label className="admin-label">Title ({lang})</label>
+      <input className="admin-input" value={packages.title[lang] || ""} onChange={e => updateTitle("title", e.target.value)} />
+
+      <label className="admin-label" style={{ marginTop: "1rem" }}>Subtitle ({lang})</label>
+      <input className="admin-input" value={packages.subtitle[lang] || ""} onChange={e => updateTitle("subtitle", e.target.value)} />
+
+      <label className="admin-label" style={{ marginTop: "1rem" }}>Rows ({lang})</label>
+      {packages.items.map((item, i) => (
+        <div key={`${item.id}-${i}`} className="admin-membership-package-row">
+          <input
+            className="admin-input"
+            value={item.id || ""}
+            onChange={e => updateItem(i, { ...item, id: e.target.value })}
+            placeholder="id"
+          />
+          <input
+            className="admin-input"
+            value={item.label[lang] || ""}
+            onChange={e => updateItem(i, { ...item, label: { ...item.label, [lang]: e.target.value } })}
+            placeholder={`Label (${lang})`}
+          />
+          <input
+            className="admin-input"
+            type="number"
+            value={item.price}
+            onChange={e => updateItem(i, { ...item, price: Number(e.target.value) })}
+            placeholder="Price"
+          />
+          <button className="admin-btn-sm admin-btn-danger" onClick={() => removeItem(i)}>x</button>
+        </div>
+      ))}
+      <button className="admin-btn-sm" onClick={addItem}>+ Add package row</button>
+    </div>
+  );
+}
+
+function MembershipEditor() {
+  const [membership, setMembership] = useAdminData(STORAGE_KEYS.membership, buildDefaultMembershipData());
+  const [saved, setSaved] = useState(false);
+  const normalizedMembership = normalizeMembershipAdminState(membership);
+
+  const updatePlan = (index, updated) => {
+    const plans = [...normalizedMembership.plans];
+    plans[index] = updated;
+    setMembership({ ...normalizedMembership, plans });
+  };
+
+  const addPlan = () => {
+    setMembership({
+      ...normalizedMembership,
+      plans: [...normalizedMembership.plans, createEmptyMembershipPlan()]
+    });
+  };
+
+  const removePlan = (index) => {
+    if (normalizedMembership.plans.length <= 1) return;
+    if (!window.confirm("Remove this membership plan?")) return;
+    setMembership({
+      ...normalizedMembership,
+      plans: normalizedMembership.plans.filter((_, i) => i !== index)
+    });
+  };
+
+  const updatePackages = (packages) => {
+    setMembership({ ...normalizedMembership, packages });
+  };
+
+  const handleSave = () => {
+    localStorage.setItem(STORAGE_KEYS.membership, JSON.stringify(normalizedMembership));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleReset = () => {
+    if (!window.confirm("Reset Membership to defaults?")) return;
+    const defaults = buildDefaultMembershipData();
+    setMembership(defaults);
+    localStorage.setItem(STORAGE_KEYS.membership, JSON.stringify(defaults));
+  };
+
+  return (
+    <div className="admin-section">
+      <h3>Membership</h3>
+      <p className="admin-hint">Edit membership cards and the membership package rows shown on the public site.</p>
+
+      {normalizedMembership.plans.map((plan, i) => (
+        <MembershipPlanEditor
+          key={`${plan.id}-${i}`}
+          plan={plan}
+          onChange={(updated) => updatePlan(i, updated)}
+          onRemove={() => removePlan(i)}
+          canRemove={normalizedMembership.plans.length > 1}
+        />
+      ))}
+
+      <button className="admin-btn admin-btn-outline" onClick={addPlan}>
+        + Add membership card
+      </button>
+
+      <MembershipPackagesEditor
+        packages={normalizedMembership.packages}
+        onChange={updatePackages}
+      />
+
+      <div className="admin-actions">
+        <button className="admin-btn" onClick={handleSave}>
+          {saved ? "Saved!" : "Save membership"}
+        </button>
+        <button className="admin-btn admin-btn-outline" onClick={handleReset}>
+          Reset membership
         </button>
       </div>
     </div>
@@ -691,6 +1078,7 @@ export default function AdminPanel() {
         {[
           { id: "video", label: "Hero Video" },
           { id: "pricing", label: "Pricing" },
+          { id: "membership", label: "Membership" },
           { id: "portfolio", label: "Portfolio" },
         ].map(t => (
           <button
@@ -706,6 +1094,7 @@ export default function AdminPanel() {
       <main className="admin-main">
         {tab === "video" && <HeroVideoEditor />}
         {tab === "pricing" && <PricingEditor />}
+        {tab === "membership" && <MembershipEditor />}
         {tab === "portfolio" && <PortfolioManager />}
       </main>
     </div>

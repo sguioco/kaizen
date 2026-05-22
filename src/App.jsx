@@ -593,6 +593,68 @@ const membershipCopy = {
   }
 };
 
+const SUPPORTED_LANGUAGES = ["EN", "RU", "AR"];
+
+function normalizeLocalizedText(value, fallback = {}) {
+  return SUPPORTED_LANGUAGES.reduce((result, lang) => {
+    result[lang] = value?.[lang] ?? fallback?.[lang] ?? fallback?.EN ?? "";
+    return result;
+  }, {});
+}
+
+function normalizeLocalizedList(value, fallback = {}) {
+  return SUPPORTED_LANGUAGES.reduce((result, lang) => {
+    const list = value?.[lang] || fallback?.[lang] || fallback?.EN || [];
+    result[lang] = Array.isArray(list) ? list : [];
+    return result;
+  }, {});
+}
+
+function normalizeMembershipPlan(plan, fallback = {}) {
+  return {
+    id: plan?.id || fallback.id || `membership-plan-${Date.now()}`,
+    icon: plan?.icon || fallback.icon || "car",
+    title: normalizeLocalizedText(plan?.title, fallback.title),
+    price: {
+      amount: Number.isFinite(Number(plan?.price?.amount))
+        ? Number(plan.price.amount)
+        : Number(fallback.price?.amount || 0),
+      currency: plan?.price?.currency || fallback.price?.currency || "AED"
+    },
+    perks: normalizeLocalizedList(plan?.perks, fallback.perks)
+  };
+}
+
+function normalizeMembershipPackageItem(item, fallback = {}) {
+  return {
+    id: item?.id || fallback.id || `membership-package-${Date.now()}`,
+    label: normalizeLocalizedText(item?.label, fallback.label),
+    price: Number.isFinite(Number(item?.price))
+      ? Number(item.price)
+      : Number(fallback.price || 0)
+  };
+}
+
+function normalizeMembershipData(rawValue) {
+  const plansSource = Array.isArray(rawValue?.plans) ? rawValue.plans : membershipPlans;
+  const packageSource = rawValue?.packages && typeof rawValue.packages === "object"
+    ? rawValue.packages
+    : membershipPackages;
+
+  return {
+    plans: plansSource.map((plan, index) =>
+      normalizeMembershipPlan(plan, membershipPlans[index] || membershipPlans[0])
+    ),
+    packages: {
+      title: normalizeLocalizedText(packageSource.title, membershipPackages.title),
+      subtitle: normalizeLocalizedText(packageSource.subtitle, membershipPackages.subtitle),
+      items: (Array.isArray(packageSource.items) ? packageSource.items : membershipPackages.items).map(
+        (item, index) => normalizeMembershipPackageItem(item, membershipPackages.items[index])
+      )
+    }
+  };
+}
+
 const normalizeFeaturableId = (value = "") =>
   value.trim().replace(/^featurable-/i, "");
 
@@ -632,9 +694,9 @@ const coverageCopy = {
     AR: "معاييرنا"
   },
   subtitle: {
-    EN: "Elite Detailing Services in UAE",
-    RU: "Элитный Детейлинг Сервис в ОАЭ",
-    AR: "خدمات ديتيلنج فاخرة في الإمارات"
+    EN: "Elite car detailing at your doorstep",
+    RU: "Элитный детейлинг авто у вашего порога",
+    AR: "ديتيلنج سيارات فاخر عند باب منزلك"
   }
 };
 
@@ -644,7 +706,7 @@ const reviewsFallbackCopy = {
   AR: "ستظهر مراجعات Google هنا بعد تفعيل الملف التجاري بالكامل."
 };
 
-const DEFAULT_HERO_VIDEO = "/hero-50s.mp4";
+const DEFAULT_HERO_VIDEO = "/KaizenCarDetailing.mp4";
 const BACKUP_HERO_VIDEO = "/videoplayback.mp4";
 const LEGACY_HERO_VIDEO = "/dubai.mp4";
 const CRITICAL_SERVICE_ASSETS = [
@@ -684,10 +746,11 @@ const uiCopy = {
     bookNow: { EN: "Book now", RU: "Записаться", AR: "احجز الآن" }
   },
   hero: {
-    line1: { EN: "Elite", RU: "Элитный", AR: "خدمات" },
-    line2Part1: { EN: "Detailing", RU: "Детейлинг", AR: "ديتيلنج" },
-    line2Part2: { EN: "Services", RU: "Сервис", AR: "فاخرة" },
-    line3: { EN: "in UAE", RU: "в ОАЭ", AR: "في الإمارات" },
+    headlineLines: {
+      EN: ["Elite car", "detailing at", "your doorstep"],
+      RU: ["Элитный детейлинг", "авто у вашего", "порога"],
+      AR: ["ديتيلنج سيارات", "فاخر عند", "باب منزلك"]
+    },
     title: {
       EN: "Right to your doorstep",
       RU: "Прямо к вашему порогу",
@@ -695,6 +758,11 @@ const uiCopy = {
     },
     ctaQuickBook: { EN: "Book in 1 click", RU: "Записаться", AR: "احجز بنقرة واحدة" },
     ctaWhatsapp: { EN: "WhatsApp chat", RU: "WhatsApp чат", AR: "محادثة WhatsApp" }
+  },
+  lifestyleStrip: {
+    EN: "Your car becomes perfect while you live your live",
+    RU: "Ваш автомобиль становится идеальным, пока вы живете своей жизнью",
+    AR: "تصبح سيارتك مثالية بينما تعيش حياتك"
   },
   sectionTitles: {
     services: { EN: "Services", RU: "Услуги", AR: "خدمات" },
@@ -824,7 +892,9 @@ export default function App() {
   // Admin-managed data (falls back to hardcoded defaults)
   const adminHeroVideo = getAdminData("kaizen_admin_heroVideo", null);
   const adminPackages = getAdminData("kaizen_admin_packages", null);
+  const adminMembership = getAdminData("kaizen_admin_membership", null);
   const adminPortfolio = getAdminData("kaizen_admin_portfolio", null);
+  const membershipConfig = normalizeMembershipData(adminMembership);
   const portfolioConfig = normalizePortfolioConfig(adminPortfolio);
   const envPortfolioFlag = import.meta.env.VITE_PORTFOLIO_VISIBLE;
   const portfolioVisible = envPortfolioFlag !== undefined
@@ -1148,6 +1218,7 @@ export default function App() {
   ]);
 
   const isRTL = language === "AR";
+  const heroHeadlineLines = uiCopy.hero.headlineLines[language] || uiCopy.hero.headlineLines.EN;
   const t = (node) => node?.[language] || node?.EN || "";
   const whatsappMessage =
     whatsappMessageByLanguage[language] || whatsappMessageByLanguage.EN;
@@ -1522,7 +1593,7 @@ export default function App() {
             loop
             playsInline
             preload="metadata"
-            poster="/dubai.webp"
+            poster="/KaizenCarDetailing-poster.webp"
             onError={handleHeroVideoError}
           />
           <div className="hero-overlay" />
@@ -1542,22 +1613,14 @@ export default function App() {
           <div className="hero-content">
             <div className="hero-copy">
               <h1 className={`hero-title hero-stagger ${language === "RU" ? "hero-title-ru" : ""}`}>
-                <>
-                  <span className="hero-line">
-                    <ShinyText text={t(uiCopy.hero.line1)} {...sharedShinyHeadingProps} />
+                {heroHeadlineLines.map((line, index) => (
+                  <span
+                    className={`hero-line${index === 1 ? " hero-italic" : ""}`}
+                    key={`${language}-${line}`}
+                  >
+                    <ShinyText text={line} {...sharedShinyHeadingProps} />
                   </span>
-                  <span className="hero-line hero-italic">
-                    <ShinyText text={t(uiCopy.hero.line2Part1)} {...sharedShinyHeadingProps} />
-                  </span>
-                  <span className="hero-line hero-italic">
-                    <ShinyText text={t(uiCopy.hero.line2Part2)} {...sharedShinyHeadingProps} />
-                  </span>
-                  <span className="hero-line">
-                    <ShinyText text={t(uiCopy.hero.line3)} {...sharedShinyHeadingProps} />
-                    {" "}
-                    <img src="/UAEflag.webp" alt="UAE" className="inline-flag hero-flag" />
-                  </span>
-                </>
+                ))}
               </h1>
             </div>
             <div className="hero-info hero-stagger">
@@ -1586,9 +1649,12 @@ export default function App() {
 
         <section className="section why reveal-block" id="why">
           <div className="why-stars-static" aria-hidden="true" />
+          <div className="why-lifestyle-strip reveal-item">
+            <span>{t(uiCopy.lifestyleStrip)}</span>
+          </div>
           <div className="section-inner" style={{ maxWidth: "100%", padding: 0 }}>
             {/* Replaced Cards with Journey Animation */}
-            <JourneyMap language={language} isRTL={isRTL} performanceLite={isPerformanceLite} />
+            <JourneyMap language={language} isRTL={isRTL} />
           </div>
         </section>
 
@@ -1718,23 +1784,28 @@ export default function App() {
             {/* Plan cards */}
             <div className="membership-plans-wrapper">
               <div className="membership-plans reveal-item">
-                {membershipPlans.map((plan) => (
-                  <article key={plan.id} className="membership-card" data-plan={plan.id}>
+                {membershipConfig.plans.map((plan) => {
+                  const planTitle = t(plan.title);
+                  const isAutoDefaultTitle = plan.id === "auto" && language === "EN" && planTitle === "Membership for Auto";
+                  const isMotoPlan = plan.icon === "moto" || plan.id === "moto";
+
+                  return (
+                    <article key={plan.id} className="membership-card" data-plan={plan.id}>
                     <div className="membership-card-icon">
-                      {plan.id === "auto" ? (
-                        <img src="/rolls1.webp" alt="" loading="lazy" decoding="async" style={{ width: 100, opacity: 0.8 }} />
-                      ) : (
+                      {isMotoPlan ? (
                         <img src="/moto.webp" alt="" loading="lazy" decoding="async" style={{ width: 90, opacity: 0.8 }} />
+                      ) : (
+                        <img src="/rolls1.webp" alt="" loading="lazy" decoding="async" style={{ width: 100, opacity: 0.8 }} />
                       )}
                     </div>
                     <h3 className="membership-card-title">
-                      {plan.id === "auto" && language === "EN" ? (
+                      {isAutoDefaultTitle ? (
                         <>
                           <span className="membership-card-title-line">Membership for</span>{" "}
                           <span className="membership-card-title-line membership-card-title-line-secondary">Auto</span>
                         </>
                       ) : (
-                        t(plan.title)
+                        planTitle
                       )}
                     </h3>
                     <div className="membership-card-price">
@@ -1755,16 +1826,17 @@ export default function App() {
                     >
                       {t(uiCopy.nav.bookNow)}
                     </button>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
               <article className="membership-packages-card reveal-item">
                 <div className="membership-packages-head">
-                  <h3 className="membership-packages-title">{t(membershipPackages.title)}</h3>
-                  <p className="membership-packages-subtitle">{t(membershipPackages.subtitle)}</p>
+                  <h3 className="membership-packages-title">{t(membershipConfig.packages.title)}</h3>
+                  <p className="membership-packages-subtitle">{t(membershipConfig.packages.subtitle)}</p>
                 </div>
                 <div className="membership-packages-list">
-                  {membershipPackages.items.map((item) => (
+                  {membershipConfig.packages.items.map((item) => (
                     <div key={item.id} className="membership-package-row">
                       <span className="membership-package-label">
                         {t(item.label)}

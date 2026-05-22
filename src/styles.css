@@ -660,29 +660,29 @@ button {
 .hero-title {
   font-family: "Montserrat", var(--font-display);
   font-weight: 600;
-  font-size: clamp(3rem, 6vw, 6.2rem);
+  font-size: clamp(3rem, 5.5vw, 5.8rem);
   text-transform: none;
-  letter-spacing: 0.03em;
-  line-height: 0.85;
+  letter-spacing: 0.02em;
+  line-height: 0.92;
   margin: 0 -0.2em;
   padding: 0 0.2em;
   transform: translateY(20px);
   display: flex;
   flex-direction: column;
-  gap: 0.06rem;
+  gap: 0.08rem;
   padding-top: 0.35em;
   padding-bottom: 0.2em;
 }
 
 .hero-line {
   display: block;
-  line-height: 0.85;
+  line-height: 0.92;
   margin: 0;
   padding-bottom: 0;
 }
 
 .hero-title .hero-line+.hero-line {
-  margin-top: -0.14em;
+  margin-top: -0.08em;
 }
 
 .hero-line .shiny-text {
@@ -690,11 +690,9 @@ button {
   padding-bottom: 0.13em;
 }
 
-/* Target specifically Premium (1st line) and Mobile Detailing (2nd line via italics class) */
 .hero-title .hero-line:first-child {
-  font-size: 1.5em;
-  line-height: 0.85;
-  /* Tightened */
+  font-size: 1.08em;
+  line-height: 0.92;
 }
 
 .hero-italic {
@@ -702,8 +700,8 @@ button {
   /* Reset italic since font is decorative */
   letter-spacing: 0.02em;
   /* Removed specific font-family override so it inherits from parent */
-  font-size: 1.5em;
-  line-height: 0.85;
+  font-size: 1.08em;
+  line-height: 0.92;
 }
 
 @media (min-width: 1024px) {
@@ -1737,9 +1735,43 @@ button {
 .section.why {
   padding-left: 0;
   padding-right: 0;
-  padding-top: 3rem;
+  padding-top: 0;
   padding-bottom: clamp(2rem, 4vw, 3rem);
   scroll-margin-top: 5rem;
+}
+
+.why-lifestyle-strip {
+  position: relative;
+  z-index: 2;
+  min-height: clamp(4.1rem, 6vw, 5.6rem);
+  display: grid;
+  place-items: center;
+  padding: 1rem var(--page-pad);
+  text-align: center;
+}
+
+.why-lifestyle-strip::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 0 5px rgba(255, 255, 255, 0.8),
+    0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.why-lifestyle-strip span {
+  max-width: min(72rem, 90vw);
+  color: #888;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.15vw, 1.15rem);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 .journey-content {
@@ -4628,11 +4660,11 @@ body.y-widget-open {
   }
 
   .hero-title .hero-line:first-child {
-    font-size: 1.25em;
+    font-size: 1.05em;
   }
 
   .hero-italic {
-    font-size: 1.25em;
+    font-size: 1.05em;
   }
 
   .hero-title.hero-title-ru {
@@ -5265,7 +5297,7 @@ body.y-widget-open {
   }
 
   .hero-title .hero-line:first-child {
-    font-size: 1.2em;
+    font-size: 1.05em;
   }
 
   .hero-info {
