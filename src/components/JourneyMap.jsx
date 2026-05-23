@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ShinyText from "./ShinyText.jsx";
 
-export default function JourneyMap({ language = "EN", isRTL = false }) {
+gsap.registerPlugin(ScrollTrigger);
+
+export default function JourneyMap({ language = "EN", isRTL = false, performanceLite = false }) {
     const sectionRef = useRef(null);
     const trackRef = useRef(null);
     const vanRef = useRef(null);
@@ -10,6 +13,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
     const tireBackRef = useRef(null);
     const [isMobileLayout, setIsMobileLayout] = useState(false);
     const [isCompactDesktop, setIsCompactDesktop] = useState(false);
+    const [isLowPerformance, setIsLowPerformance] = useState(false);
 
     // Icon Refs
     const geoRef = useRef(null);
@@ -94,38 +98,113 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
             return undefined;
         }
 
+        const isMobile = isMobileLayout || window.matchMedia("(max-width: 780px)").matches;
+        const liteMode = isLowPerformance || isMobile;
+        const scrollDistance = liteMode ? 420 : 1000;
+        const scrubValue = liteMode ? 0.4 : 1;
+        const shouldPin = !liteMode;
         const travelDistance = Math.max(track.clientWidth - van.clientWidth, 0);
-        const staticX = Math.round(travelDistance / 2);
+        const startX = isRTL ? travelDistance : 0;
+        const endX = isRTL ? 0 : travelDistance;
         const desktopMilestones = section.querySelectorAll(".milestone-marker");
+        const forceStaticDesktop = performanceLite && !isMobileLayout;
+
+        if (forceStaticDesktop) {
+            gsap.set(van, { x: endX, force3D: true });
+            if (tireBack) {
+                gsap.set(tireBack, {
+                    x: 0,
+                    y: 0,
+                    rotation: 0,
+                    transformOrigin: tireBackOrigin
+                });
+            }
+            if (tireFront) {
+                gsap.set(tireFront, {
+                    x: 0,
+                    y: 0,
+                    rotation: 0,
+                    transformOrigin: tireFrontOrigin
+                });
+            }
+            gsap.set(desktopMilestones, { opacity: 1, scale: 1, clearProps: "transform" });
+            return () => {
+                gsap.killTweensOf([vanRef.current, tireFrontRef.current, tireBackRef.current, ...desktopMilestones]);
+            };
+        }
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: section,
+                start: "top top+=100",
+                end: `+=${scrollDistance}`,
+                scrub: scrubValue,
+                pin: shouldPin,
+                pinSpacing: shouldPin,
+                anticipatePin: 1,
+                fastScrollEnd: true,
+                invalidateOnRefresh: true
+            }
+        });
 
         gsap.set(van, {
-            x: staticX,
+            x: startX,
             force3D: true
         });
 
-        if (tireBack) {
+        tl.to(van, {
+            x: endX,
+            duration: 1,
+            ease: "none",
+            force3D: true
+        });
+
+        const wheelRotation = travelDistance * (isRTL ? -1 : 1);
+
+        if (!liteMode && tireBack) {
             gsap.set(tireBack, {
                 x: 0,
                 y: 0,
                 rotation: 0,
                 transformOrigin: tireBackOrigin
             });
+            tl.to(tireBack, {
+                rotation: wheelRotation,
+                duration: 1,
+                ease: "none"
+            }, 0);
         }
 
-        if (tireFront) {
+        if (!liteMode && tireFront) {
             gsap.set(tireFront, {
                 x: 0,
                 y: 0,
                 rotation: 0,
                 transformOrigin: tireFrontOrigin
             });
+            tl.to(tireFront, {
+                rotation: wheelRotation,
+                duration: 1,
+                ease: "none"
+            }, 0);
         }
 
-        gsap.set(desktopMilestones, { opacity: 1 });
+        const positions = isMobile ? [0.12, 0.30, 0.50, 0.70, 0.90] : [0.15, 0.35, 0.58, 0.80, 0.98];
+
+        desktopMilestones.forEach((ms, i) => {
+            if (ms) {
+                tl.fromTo(ms,
+                    { opacity: 0 },
+                    { opacity: 1, duration: 0.08, ease: "power2.out" },
+                    positions[i]
+                );
+            }
+        });
 
         return () => {
+            tl.scrollTrigger?.kill();
+            tl.kill();
             gsap.killTweensOf([
-                vanRef.current,
                 tireFrontRef.current,
                 tireBackRef.current,
                 geoRef.current,
@@ -135,7 +214,7 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
                 guaranteeRef.current
             ]);
         };
-    }, [isRTL, isMobileLayout]);
+    }, [isRTL, isMobileLayout, isLowPerformance, performanceLite]);
 
     useEffect(() => {
         const media = window.matchMedia("(max-width: 768px)");
@@ -153,6 +232,13 @@ export default function JourneyMap({ language = "EN", isRTL = false }) {
         syncLayout();
         window.addEventListener("resize", syncLayout);
         return () => window.removeEventListener("resize", syncLayout);
+    }, []);
+
+    useEffect(() => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const cpuCores = navigator.hardwareConcurrency || 8;
+        const ramGb = navigator.deviceMemory || 8;
+        setIsLowPerformance(reduceMotion || cpuCores <= 4 || ramGb <= 4);
     }, []);
 
     const markerPositions = isMobileLayout

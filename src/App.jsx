@@ -1654,7 +1654,7 @@ export default function App() {
           </div>
           <div className="section-inner" style={{ maxWidth: "100%", padding: 0 }}>
             {/* Replaced Cards with Journey Animation */}
-            <JourneyMap language={language} isRTL={isRTL} />
+            <JourneyMap language={language} isRTL={isRTL} performanceLite={isPerformanceLite} />
           </div>
         </section>
 
