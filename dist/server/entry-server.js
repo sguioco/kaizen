@@ -611,9 +611,8 @@ function JourneyMap({ language = "EN", isRTL = false, performanceLite = false })
         ease: "none"
       }, 0);
     }
-    const milestones = desktopMilestones;
     const positions = isMobile ? [0.12, 0.3, 0.5, 0.7, 0.9] : [0.15, 0.35, 0.58, 0.8, 0.98];
-    milestones.forEach((ms, i) => {
+    desktopMilestones.forEach((ms, i) => {
       if (ms) {
         tl.fromTo(
           ms,
@@ -1339,6 +1338,26 @@ function MenuButton({ onClick, isOpen }) {
     }
   );
 }
+const ADMIN_API_BASE = "".replace(/\/$/, "");
+const ADMIN_CONTENT_PATH = "/api/admin-content";
+function buildAdminContentUrl(path = "") {
+  return `${ADMIN_API_BASE}${ADMIN_CONTENT_PATH}${path}`;
+}
+async function parseJsonResponse(response) {
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error((payload == null ? void 0 : payload.error) || `Admin content API error (${response.status})`);
+  }
+  return payload;
+}
+async function fetchAdminContent({ signal } = {}) {
+  const response = await fetch(buildAdminContentUrl(), {
+    cache: "no-store",
+    signal
+  });
+  const payload = await parseJsonResponse(response);
+  return (payload == null ? void 0 : payload.content) || {};
+}
 gsap.registerPlugin(ScrollTrigger);
 const BeholdFallback = ({
   message = "Instagram feed will appear here after you add your Behold feedId"
@@ -1855,6 +1874,56 @@ const membershipCopy = {
     weeks: { EN: "weeks of flawless condition", RU: "недель безупречного состояния", AR: "أسبوعًا من الحالة المثالية" }
   }
 };
+const SUPPORTED_LANGUAGES = ["EN", "RU", "AR"];
+function normalizeLocalizedText(value, fallback = {}) {
+  return SUPPORTED_LANGUAGES.reduce((result, lang) => {
+    result[lang] = (value == null ? void 0 : value[lang]) ?? (fallback == null ? void 0 : fallback[lang]) ?? (fallback == null ? void 0 : fallback.EN) ?? "";
+    return result;
+  }, {});
+}
+function normalizeLocalizedList(value, fallback = {}) {
+  return SUPPORTED_LANGUAGES.reduce((result, lang) => {
+    const list = (value == null ? void 0 : value[lang]) || (fallback == null ? void 0 : fallback[lang]) || (fallback == null ? void 0 : fallback.EN) || [];
+    result[lang] = Array.isArray(list) ? list : [];
+    return result;
+  }, {});
+}
+function normalizeMembershipPlan(plan, fallback = {}) {
+  var _a, _b, _c, _d;
+  return {
+    id: (plan == null ? void 0 : plan.id) || fallback.id || `membership-plan-${Date.now()}`,
+    icon: (plan == null ? void 0 : plan.icon) || fallback.icon || "car",
+    title: normalizeLocalizedText(plan == null ? void 0 : plan.title, fallback.title),
+    price: {
+      amount: Number.isFinite(Number((_a = plan == null ? void 0 : plan.price) == null ? void 0 : _a.amount)) ? Number(plan.price.amount) : Number(((_b = fallback.price) == null ? void 0 : _b.amount) || 0),
+      currency: ((_c = plan == null ? void 0 : plan.price) == null ? void 0 : _c.currency) || ((_d = fallback.price) == null ? void 0 : _d.currency) || "AED"
+    },
+    perks: normalizeLocalizedList(plan == null ? void 0 : plan.perks, fallback.perks)
+  };
+}
+function normalizeMembershipPackageItem(item, fallback = {}) {
+  return {
+    id: (item == null ? void 0 : item.id) || fallback.id || `membership-package-${Date.now()}`,
+    label: normalizeLocalizedText(item == null ? void 0 : item.label, fallback.label),
+    price: Number.isFinite(Number(item == null ? void 0 : item.price)) ? Number(item.price) : Number(fallback.price || 0)
+  };
+}
+function normalizeMembershipData(rawValue) {
+  const plansSource = Array.isArray(rawValue == null ? void 0 : rawValue.plans) ? rawValue.plans : membershipPlans;
+  const packageSource = (rawValue == null ? void 0 : rawValue.packages) && typeof rawValue.packages === "object" ? rawValue.packages : membershipPackages;
+  return {
+    plans: plansSource.map(
+      (plan, index) => normalizeMembershipPlan(plan, membershipPlans[index] || membershipPlans[0])
+    ),
+    packages: {
+      title: normalizeLocalizedText(packageSource.title, membershipPackages.title),
+      subtitle: normalizeLocalizedText(packageSource.subtitle, membershipPackages.subtitle),
+      items: (Array.isArray(packageSource.items) ? packageSource.items : membershipPackages.items).map(
+        (item, index) => normalizeMembershipPackageItem(item, membershipPackages.items[index])
+      )
+    }
+  };
+}
 const normalizeFeaturableId = (value = "") => value.trim().replace(/^featurable-/i, "");
 const DEFAULT_FEATURABLE_WIDGET_ID = "b1506bd1-b1ca-442e-b4b1-95314643ba77";
 const DEFAULT_GOOGLE_REVIEWS_URL = "https://maps.google.com/?q=Kaizen+Detailers+-+Madinat+Hind+4+-+Damac+Hills+-+Dubai&ftid=0xa84886aa5ca2212b:0xff2b4b14c6b47169";
@@ -1884,9 +1953,9 @@ const coverageCopy = {
     AR: "معاييرنا"
   },
   subtitle: {
-    EN: "Elite Detailing Services in UAE",
-    RU: "Элитный Детейлинг Сервис в ОАЭ",
-    AR: "خدمات ديتيلنج فاخرة في الإمارات"
+    EN: "Elite car detailing at your doorstep",
+    RU: "Элитный детейлинг авто у вашего порога",
+    AR: "ديتيلنج سيارات فاخر عند باب منزلك"
   }
 };
 const reviewsFallbackCopy = {
@@ -1894,7 +1963,7 @@ const reviewsFallbackCopy = {
   RU: "Google Reviews появятся здесь после полной активации бизнес-профиля.",
   AR: "ستظهر مراجعات Google هنا بعد تفعيل الملف التجاري بالكامل."
 };
-const DEFAULT_HERO_VIDEO = "/hero-50s.mp4";
+const DEFAULT_HERO_VIDEO = "/KaizenCarDetailing.mp4";
 const BACKUP_HERO_VIDEO = "/videoplayback.mp4";
 const LEGACY_HERO_VIDEO = "/dubai.mp4";
 const CRITICAL_SERVICE_ASSETS = [
@@ -1931,10 +2000,11 @@ const uiCopy = {
     bookNow: { EN: "Book now", RU: "Записаться", AR: "احجز الآن" }
   },
   hero: {
-    line1: { EN: "Elite", RU: "Элитный", AR: "خدمات" },
-    line2Part1: { EN: "Detailing", RU: "Детейлинг", AR: "ديتيلنج" },
-    line2Part2: { EN: "Services", RU: "Сервис", AR: "فاخرة" },
-    line3: { EN: "in UAE", RU: "в ОАЭ", AR: "في الإمارات" },
+    headlineLines: {
+      EN: ["Elite car", "detailing at", "your doorstep"],
+      RU: ["Элитный детейлинг", "авто у вашего", "порога"],
+      AR: ["ديتيلنج سيارات", "فاخر عند", "باب منزلك"]
+    },
     title: {
       EN: "Right to your doorstep",
       RU: "Прямо к вашему порогу",
@@ -1942,6 +2012,11 @@ const uiCopy = {
     },
     ctaQuickBook: { EN: "Book in 1 click", RU: "Записаться", AR: "احجز بنقرة واحدة" },
     ctaWhatsapp: { EN: "WhatsApp chat", RU: "WhatsApp чат", AR: "محادثة WhatsApp" }
+  },
+  lifestyleStrip: {
+    EN: "Your car becomes perfect while you live your live",
+    RU: "Ваш автомобиль становится идеальным, пока вы живете своей жизнью",
+    AR: "تصبح سيارتك مثالية بينما تعيش حياتك"
   },
   sectionTitles: {
     services: { EN: "Services", RU: "Услуги", AR: "خدمات" },
@@ -2051,13 +2126,22 @@ const uiCopy = {
     soon: { EN: "SOON", RU: "СКОРО", AR: "قريبا" }
   }
 };
-function getAdminData(key, fallback) {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : fallback;
-  } catch {
-    return fallback;
-  }
+const ADMIN_CONTENT_KEYS = ["heroVideo", "packages", "membership", "portfolio"];
+function getInitialAdminContent() {
+  return {
+    heroVideo: null,
+    packages: null,
+    membership: null,
+    portfolio: null
+  };
+}
+function mergeAdminContent(previousContent, nextContent) {
+  return ADMIN_CONTENT_KEYS.reduce((content, key) => {
+    if (Object.prototype.hasOwnProperty.call(nextContent || {}, key) && nextContent[key] !== null && nextContent[key] !== void 0) {
+      content[key] = nextContent[key];
+    }
+    return content;
+  }, { ...previousContent });
 }
 function App() {
   var _a;
@@ -2066,9 +2150,12 @@ function App() {
   const portfolioMetaRef = useRef(null);
   const trustSectionRef = useRef(null);
   const [language, setLanguage] = useState("EN");
-  const adminHeroVideo = getAdminData("kaizen_admin_heroVideo", null);
-  const adminPackages = getAdminData("kaizen_admin_packages", null);
-  const adminPortfolio = getAdminData("kaizen_admin_portfolio", null);
+  const [adminContent, setAdminContent] = useState(getInitialAdminContent);
+  const adminHeroVideo = adminContent.heroVideo;
+  const adminPackages = adminContent.packages;
+  const adminMembership = adminContent.membership;
+  const adminPortfolio = adminContent.portfolio;
+  const membershipConfig = normalizeMembershipData(adminMembership);
   const portfolioConfig = normalizePortfolioConfig(adminPortfolio);
   const portfolioVisible = portfolioConfig.visible !== false;
   const [heroVideoSrc, setHeroVideoSrc] = useState(DEFAULT_HERO_VIDEO);
@@ -2099,6 +2186,26 @@ function App() {
     RU: "Здравствуйте, Kaizen Detailers! Хочу записаться на мобильный детейлинг в Дубае. Помогите выбрать подходящий пакет и ближайшее свободное время.",
     AR: "مرحبا فريق كايزن ديتيلرز! أرغب بحجز خدمة التلميع المتنقل في دبي. الرجاء مساعدتي في اختيار الباقة المناسبة وأقرب موعد متاح."
   };
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchAdminContent({ signal: controller.signal }).then((content) => {
+      setAdminContent((previousContent) => mergeAdminContent(previousContent, content));
+    }).catch((error) => {
+      if ((error == null ? void 0 : error.name) !== "AbortError") {
+        console.warn("Failed to load admin content", error);
+      }
+    });
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (!portfolioItems.length) return;
+    const hasActivePortfolioCategory = portfolioItems.some(
+      (item) => item.category === activePortfolioCategory
+    );
+    if (!hasActivePortfolioCategory) {
+      setActivePortfolioCategory(portfolioItems[0].category);
+    }
+  }, [activePortfolioCategory, portfolioItems]);
   useEffect(() => {
     const fallbackChain = buildHeroVideoFallbackChain(adminHeroVideo == null ? void 0 : adminHeroVideo.url);
     heroVideoFallbackChainRef.current = fallbackChain;
@@ -2328,6 +2435,7 @@ function App() {
     activePortfolioItem == null ? void 0 : activePortfolioItem.description
   ]);
   const isRTL = language === "AR";
+  const heroHeadlineLines = uiCopy.hero.headlineLines[language] || uiCopy.hero.headlineLines.EN;
   const t = (node) => (node == null ? void 0 : node[language]) || (node == null ? void 0 : node.EN) || "";
   const whatsappMessage = whatsappMessageByLanguage[language] || whatsappMessageByLanguage.EN;
   const whatsappHref = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
@@ -2684,7 +2792,7 @@ function App() {
             loop: true,
             playsInline: true,
             preload: "metadata",
-            poster: "/dubai.webp",
+            poster: "/KaizenCarDetailing-poster.webp",
             onError: handleHeroVideoError
           }
         ),
@@ -2699,16 +2807,14 @@ function App() {
           }
         ) }),
         /* @__PURE__ */ jsxs("div", { className: "hero-content", children: [
-          /* @__PURE__ */ jsx("div", { className: "hero-copy", children: /* @__PURE__ */ jsx("h1", { className: `hero-title hero-stagger ${language === "RU" ? "hero-title-ru" : ""}`, children: /* @__PURE__ */ jsxs(Fragment, { children: [
-            /* @__PURE__ */ jsx("span", { className: "hero-line", children: /* @__PURE__ */ jsx(ShinyText, { text: t(uiCopy.hero.line1), ...sharedShinyHeadingProps }) }),
-            /* @__PURE__ */ jsx("span", { className: "hero-line hero-italic", children: /* @__PURE__ */ jsx(ShinyText, { text: t(uiCopy.hero.line2Part1), ...sharedShinyHeadingProps }) }),
-            /* @__PURE__ */ jsx("span", { className: "hero-line hero-italic", children: /* @__PURE__ */ jsx(ShinyText, { text: t(uiCopy.hero.line2Part2), ...sharedShinyHeadingProps }) }),
-            /* @__PURE__ */ jsxs("span", { className: "hero-line", children: [
-              /* @__PURE__ */ jsx(ShinyText, { text: t(uiCopy.hero.line3), ...sharedShinyHeadingProps }),
-              " ",
-              /* @__PURE__ */ jsx("img", { src: "/UAEflag.webp", alt: "UAE", className: "inline-flag hero-flag" })
-            ] })
-          ] }) }) }),
+          /* @__PURE__ */ jsx("div", { className: "hero-copy", children: /* @__PURE__ */ jsx("h1", { className: `hero-title hero-stagger ${language === "RU" ? "hero-title-ru" : ""}`, children: heroHeadlineLines.map((line, index) => /* @__PURE__ */ jsx(
+            "span",
+            {
+              className: `hero-line${index === 1 ? " hero-italic" : ""}`,
+              children: /* @__PURE__ */ jsx(ShinyText, { text: line, ...sharedShinyHeadingProps })
+            },
+            `${language}-${line}`
+          )) }) }),
           /* @__PURE__ */ jsxs("div", { className: "hero-info hero-stagger", children: [
             /* @__PURE__ */ jsx("h3", { children: t(uiCopy.hero.title) }),
             /* @__PURE__ */ jsxs("div", { className: "hero-actions", children: [
@@ -2738,6 +2844,7 @@ function App() {
       ] }),
       /* @__PURE__ */ jsxs("section", { className: "section why reveal-block", id: "why", children: [
         /* @__PURE__ */ jsx("div", { className: "why-stars-static", "aria-hidden": "true" }),
+        /* @__PURE__ */ jsx("div", { className: "why-lifestyle-strip reveal-item", children: /* @__PURE__ */ jsx("span", { children: t(uiCopy.lifestyleStrip) }) }),
         /* @__PURE__ */ jsx("div", { className: "section-inner", style: { maxWidth: "100%", padding: 0 }, children: /* @__PURE__ */ jsx(JourneyMap, { language, isRTL, performanceLite: isPerformanceLite }) })
       ] }),
       /* @__PURE__ */ jsxs("div", { className: "services-process-wrapper", style: { position: "relative", overflow: "visible" }, children: [
@@ -2837,34 +2944,39 @@ function App() {
           ] })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "membership-plans-wrapper", children: [
-          /* @__PURE__ */ jsx("div", { className: "membership-plans reveal-item", children: membershipPlans.map((plan) => /* @__PURE__ */ jsxs("article", { className: "membership-card", "data-plan": plan.id, children: [
-            /* @__PURE__ */ jsx("div", { className: "membership-card-icon", children: plan.id === "auto" ? /* @__PURE__ */ jsx("img", { src: "/rolls1.webp", alt: "", loading: "lazy", decoding: "async", style: { width: 100, opacity: 0.8 } }) : /* @__PURE__ */ jsx("img", { src: "/moto.webp", alt: "", loading: "lazy", decoding: "async", style: { width: 90, opacity: 0.8 } }) }),
-            /* @__PURE__ */ jsx("h3", { className: "membership-card-title", children: plan.id === "auto" && language === "EN" ? /* @__PURE__ */ jsxs(Fragment, { children: [
-              /* @__PURE__ */ jsx("span", { className: "membership-card-title-line", children: "Membership for" }),
-              " ",
-              /* @__PURE__ */ jsx("span", { className: "membership-card-title-line membership-card-title-line-secondary", children: "Auto" })
-            ] }) : t(plan.title) }),
-            /* @__PURE__ */ jsxs("div", { className: "membership-card-price", children: [
-              /* @__PURE__ */ jsx("span", { className: "membership-price-amount", children: /* @__PURE__ */ jsx(CountUp, { from: 0, to: plan.price.amount, separator: ",", direction: "up", duration: 1.2, className: "membership-price-value", startCounting: true }) }),
-              /* @__PURE__ */ jsx("span", { className: "membership-price-currency", children: plan.price.currency })
-            ] }),
-            /* @__PURE__ */ jsx("ul", { className: "membership-card-perks", children: (plan.perks[language] || plan.perks.EN).map((perk) => /* @__PURE__ */ jsx("li", { children: perk }, perk)) }),
-            /* @__PURE__ */ jsx(
-              "button",
-              {
-                type: "button",
-                className: "btn btn-primary membership-card-btn",
-                onClick: handleOpenBooking,
-                children: t(uiCopy.nav.bookNow)
-              }
-            )
-          ] }, plan.id)) }),
+          /* @__PURE__ */ jsx("div", { className: "membership-plans reveal-item", children: membershipConfig.plans.map((plan) => {
+            const planTitle = t(plan.title);
+            const isAutoDefaultTitle = plan.id === "auto" && language === "EN" && planTitle === "Membership for Auto";
+            const isMotoPlan = plan.icon === "moto" || plan.id === "moto";
+            return /* @__PURE__ */ jsxs("article", { className: "membership-card", "data-plan": plan.id, children: [
+              /* @__PURE__ */ jsx("div", { className: "membership-card-icon", children: isMotoPlan ? /* @__PURE__ */ jsx("img", { src: "/moto.webp", alt: "", loading: "lazy", decoding: "async", style: { width: 90, opacity: 0.8 } }) : /* @__PURE__ */ jsx("img", { src: "/rolls1.webp", alt: "", loading: "lazy", decoding: "async", style: { width: 100, opacity: 0.8 } }) }),
+              /* @__PURE__ */ jsx("h3", { className: "membership-card-title", children: isAutoDefaultTitle ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsx("span", { className: "membership-card-title-line", children: "Membership for" }),
+                " ",
+                /* @__PURE__ */ jsx("span", { className: "membership-card-title-line membership-card-title-line-secondary", children: "Auto" })
+              ] }) : planTitle }),
+              /* @__PURE__ */ jsxs("div", { className: "membership-card-price", children: [
+                /* @__PURE__ */ jsx("span", { className: "membership-price-amount", children: /* @__PURE__ */ jsx(CountUp, { from: 0, to: plan.price.amount, separator: ",", direction: "up", duration: 1.2, className: "membership-price-value", startCounting: true }) }),
+                /* @__PURE__ */ jsx("span", { className: "membership-price-currency", children: plan.price.currency })
+              ] }),
+              /* @__PURE__ */ jsx("ul", { className: "membership-card-perks", children: (plan.perks[language] || plan.perks.EN).map((perk) => /* @__PURE__ */ jsx("li", { children: perk }, perk)) }),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "btn btn-primary membership-card-btn",
+                  onClick: handleOpenBooking,
+                  children: t(uiCopy.nav.bookNow)
+                }
+              )
+            ] }, plan.id);
+          }) }),
           /* @__PURE__ */ jsxs("article", { className: "membership-packages-card reveal-item", children: [
             /* @__PURE__ */ jsxs("div", { className: "membership-packages-head", children: [
-              /* @__PURE__ */ jsx("h3", { className: "membership-packages-title", children: t(membershipPackages.title) }),
-              /* @__PURE__ */ jsx("p", { className: "membership-packages-subtitle", children: t(membershipPackages.subtitle) })
+              /* @__PURE__ */ jsx("h3", { className: "membership-packages-title", children: t(membershipConfig.packages.title) }),
+              /* @__PURE__ */ jsx("p", { className: "membership-packages-subtitle", children: t(membershipConfig.packages.subtitle) })
             ] }),
-            /* @__PURE__ */ jsx("div", { className: "membership-packages-list", children: membershipPackages.items.map((item) => /* @__PURE__ */ jsxs("div", { className: "membership-package-row", children: [
+            /* @__PURE__ */ jsx("div", { className: "membership-packages-list", children: membershipConfig.packages.items.map((item) => /* @__PURE__ */ jsxs("div", { className: "membership-package-row", children: [
               /* @__PURE__ */ jsx("span", { className: "membership-package-label", children: t(item.label) }),
               /* @__PURE__ */ jsxs("span", { className: "membership-package-price", children: [
                 /* @__PURE__ */ jsx(

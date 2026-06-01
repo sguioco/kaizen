@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import { createServer as createViteServer } from "vite";
+import { registerAdminContentRoutes } from "./admin-content-routes.mjs";
 import { registerAltegioRoutes } from "./altegio-routes.mjs";
 
 dotenv.config();
@@ -8,7 +9,8 @@ dotenv.config();
 const port = Number(process.env.PORT || 5555);
 const app = express();
 
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "15mb" }));
+registerAdminContentRoutes(app);
 registerAltegioRoutes(app);
 
 const vite = await createViteServer({

@@ -11,6 +11,7 @@ import CountUp from "./components/CountUp.jsx";
 import ShinyText from "./components/ShinyText.jsx";
 import MenuOverlay from "./components/MenuOverlay.jsx"; // New import
 import MenuButton from "./components/MenuButton.jsx";   // New import
+import { fetchAdminContent } from "./lib/adminContentApi.js";
 import "./styles.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -873,13 +874,29 @@ const uiCopy = {
   }
 };
 
-function getAdminData(key, fallback) {
-  try {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : fallback;
-  } catch {
-    return fallback;
-  }
+const ADMIN_CONTENT_KEYS = ["heroVideo", "packages", "membership", "portfolio"];
+
+function getInitialAdminContent() {
+  return {
+    heroVideo: null,
+    packages: null,
+    membership: null,
+    portfolio: null
+  };
+}
+
+function mergeAdminContent(previousContent, nextContent) {
+  return ADMIN_CONTENT_KEYS.reduce((content, key) => {
+    if (
+      Object.prototype.hasOwnProperty.call(nextContent || {}, key) &&
+      nextContent[key] !== null &&
+      nextContent[key] !== undefined
+    ) {
+      content[key] = nextContent[key];
+    }
+
+    return content;
+  }, { ...previousContent });
 }
 
 export default function App() {
@@ -888,12 +905,13 @@ export default function App() {
   const portfolioMetaRef = useRef(null);
   const trustSectionRef = useRef(null);
   const [language, setLanguage] = useState("EN");
+  const [adminContent, setAdminContent] = useState(getInitialAdminContent);
 
   // Admin-managed data (falls back to hardcoded defaults)
-  const adminHeroVideo = getAdminData("kaizen_admin_heroVideo", null);
-  const adminPackages = getAdminData("kaizen_admin_packages", null);
-  const adminMembership = getAdminData("kaizen_admin_membership", null);
-  const adminPortfolio = getAdminData("kaizen_admin_portfolio", null);
+  const adminHeroVideo = adminContent.heroVideo;
+  const adminPackages = adminContent.packages;
+  const adminMembership = adminContent.membership;
+  const adminPortfolio = adminContent.portfolio;
   const membershipConfig = normalizeMembershipData(adminMembership);
   const portfolioConfig = normalizePortfolioConfig(adminPortfolio);
   const envPortfolioFlag = import.meta.env.VITE_PORTFOLIO_VISIBLE;
@@ -930,6 +948,34 @@ export default function App() {
     RU: "Здравствуйте, Kaizen Detailers! Хочу записаться на мобильный детейлинг в Дубае. Помогите выбрать подходящий пакет и ближайшее свободное время.",
     AR: "مرحبا فريق كايزن ديتيلرز! أرغب بحجز خدمة التلميع المتنقل في دبي. الرجاء مساعدتي في اختيار الباقة المناسبة وأقرب موعد متاح."
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchAdminContent({ signal: controller.signal })
+      .then((content) => {
+        setAdminContent((previousContent) => mergeAdminContent(previousContent, content));
+      })
+      .catch((error) => {
+        if (error?.name !== "AbortError") {
+          console.warn("Failed to load admin content", error);
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!portfolioItems.length) return;
+
+    const hasActivePortfolioCategory = portfolioItems.some(
+      (item) => item.category === activePortfolioCategory
+    );
+
+    if (!hasActivePortfolioCategory) {
+      setActivePortfolioCategory(portfolioItems[0].category);
+    }
+  }, [activePortfolioCategory, portfolioItems]);
 
   useEffect(() => {
     const fallbackChain = buildHeroVideoFallbackChain(adminHeroVideo?.url);

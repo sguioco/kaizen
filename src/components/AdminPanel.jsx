@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "../admin.css";
+import {
+  fetchAdminContent,
+  saveAdminContentValue,
+  verifyAdminPassword
+} from "../lib/adminContentApi.js";
 
-const ADMIN_PASSWORD = "DetailersK00";
 const STORAGE_KEYS = {
+  heroVideo: "heroVideo",
+  packages: "packages",
+  membership: "membership",
+  portfolio: "portfolio",
+};
+
+const LEGACY_STORAGE_KEYS = {
   heroVideo: "kaizen_admin_heroVideo",
   packages: "kaizen_admin_packages",
   membership: "kaizen_admin_membership",
@@ -10,38 +21,93 @@ const STORAGE_KEYS = {
 };
 
 const LANGS = ["EN", "RU", "AR"];
+const AdminPasswordContext = React.createContext("");
+
+function readLocalAdminDraft(key, defaultValue) {
+  try {
+    const storageKey = LEGACY_STORAGE_KEYS[key] || key;
+    const stored = localStorage.getItem(storageKey);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+function writeLocalAdminDraft(key, value) {
+  try {
+    const storageKey = LEGACY_STORAGE_KEYS[key] || key;
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  } catch {
+    // Local draft cache is optional.
+  }
+}
 
 function useAdminData(key, defaultValue) {
-  const [data, setData] = useState(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultValue;
-    } catch {
-      return defaultValue;
-    }
-  });
+  const adminPassword = React.useContext(AdminPasswordContext);
+  const [data, setDataState] = useState(() => readLocalAdminDraft(key, defaultValue));
+  const [loadError, setLoadError] = useState("");
 
-  const save = (newData) => {
-    setData(newData);
-    localStorage.setItem(key, JSON.stringify(newData));
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchAdminContent({ signal: controller.signal })
+      .then((content) => {
+        setLoadError("");
+        if (content?.[key] !== null && content?.[key] !== undefined) {
+          setDataState(content[key]);
+          writeLocalAdminDraft(key, content[key]);
+        }
+      })
+      .catch((error) => {
+        if (error?.name !== "AbortError") {
+          setLoadError(error.message || "Failed to load admin data.");
+        }
+      });
+
+    return () => controller.abort();
+  }, [key]);
+
+  const setData = (newData) => {
+    setDataState(newData);
+    writeLocalAdminDraft(key, newData);
   };
 
-  return [data, save];
+  const save = async (newData) => {
+    setData(newData);
+    await saveAdminContentValue(key, newData, adminPassword);
+  };
+
+  return [data, setData, save, { loadError }];
 }
 
 /* ── Hero Video Tab ─────────────────────────────────── */
 function HeroVideoEditor() {
-  const [video, setVideo] = useAdminData(STORAGE_KEYS.heroVideo, {
+  const [video, , saveVideo, videoStatus] = useAdminData(STORAGE_KEYS.heroVideo, {
     url: "/KaizenCarDetailing.mp4",
   });
   const [draft, setDraft] = useState(video.url);
   const [file, setFile] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
-  const handleSave = () => {
-    setVideo({ url: draft });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    setDraft(video.url);
+  }, [video.url]);
+
+  const handleSave = async () => {
+    if (draft.startsWith("blob:")) {
+      setSaveError("Uploaded video files are local only. Use a public video URL or upload the video to the server first.");
+      return;
+    }
+
+    try {
+      setSaveError("");
+      await saveVideo({ url: draft });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      setSaveError(error.message || "Failed to save hero video.");
+    }
   };
 
   const handleFile = (e) => {
@@ -56,6 +122,7 @@ function HeroVideoEditor() {
     <div className="admin-section">
       <h3>Hero Video</h3>
       <p className="admin-hint">Enter a URL or upload a video file for the hero section.</p>
+      {videoStatus.loadError && <p className="admin-error">{videoStatus.loadError}</p>}
 
       <label className="admin-label">Video URL</label>
       <input
@@ -78,6 +145,7 @@ function HeroVideoEditor() {
       <button className="admin-btn" onClick={handleSave}>
         {saved ? "Saved!" : "Save"}
       </button>
+      {saveError && <p className="admin-error">{saveError}</p>}
     </div>
   );
 }
@@ -255,9 +323,10 @@ function createEmptyPackage() {
 }
 
 function PricingEditor() {
-  const [allPricing, setAllPricing] = useAdminData(STORAGE_KEYS.packages, buildDefaultByService());
+  const [allPricing, setAllPricing, savePricing, pricingStatus] = useAdminData(STORAGE_KEYS.packages, buildDefaultByService());
   const [activeService, setActiveService] = useState("auto");
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Migration: if old flat array format is stored, convert to per-service
   const pricing = (() => {
@@ -298,25 +367,40 @@ function PricingEditor() {
     setAllPricing(newPricing);
   };
 
-  const handleSave = () => {
-    localStorage.setItem(STORAGE_KEYS.packages, JSON.stringify(pricing));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleReset = () => {
-    if (window.confirm(`Reset pricing for "${SERVICE_CATEGORIES.find(s => s.id === activeService)?.label}" to defaults?`)) {
-      const newPricing = { ...pricing, [activeService]: JSON.parse(JSON.stringify(defaultPackages)) };
-      setAllPricing(newPricing);
-      localStorage.setItem(STORAGE_KEYS.packages, JSON.stringify(newPricing));
+  const handleSave = async () => {
+    try {
+      setSaveError("");
+      await savePricing(pricing);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      setSaveError(error.message || "Failed to save pricing.");
     }
   };
 
-  const handleResetAll = () => {
+  const handleReset = async () => {
+    if (window.confirm(`Reset pricing for "${SERVICE_CATEGORIES.find(s => s.id === activeService)?.label}" to defaults?`)) {
+      const newPricing = { ...pricing, [activeService]: JSON.parse(JSON.stringify(defaultPackages)) };
+      setAllPricing(newPricing);
+      try {
+        setSaveError("");
+        await savePricing(newPricing);
+      } catch (error) {
+        setSaveError(error.message || "Failed to reset pricing.");
+      }
+    }
+  };
+
+  const handleResetAll = async () => {
     if (window.confirm("Reset ALL service pricing to defaults?")) {
       const def = buildDefaultByService();
       setAllPricing(def);
-      localStorage.setItem(STORAGE_KEYS.packages, JSON.stringify(def));
+      try {
+        setSaveError("");
+        await savePricing(def);
+      } catch (error) {
+        setSaveError(error.message || "Failed to reset pricing.");
+      }
     }
   };
 
@@ -324,6 +408,7 @@ function PricingEditor() {
     <div className="admin-section">
       <h3>Pricing Packages</h3>
       <p className="admin-hint">Select a service category, then edit its packages. Each service has its own Silver / Gold / Platinum pricing.</p>
+      {pricingStatus.loadError && <p className="admin-error">{pricingStatus.loadError}</p>}
 
       <div className="admin-service-tabs">
         {SERVICE_CATEGORIES.map(s => (
@@ -361,6 +446,7 @@ function PricingEditor() {
           Reset all services
         </button>
       </div>
+      {saveError && <p className="admin-error">{saveError}</p>}
     </div>
   );
 }
@@ -670,8 +756,9 @@ function MembershipPackagesEditor({ packages, onChange }) {
 }
 
 function MembershipEditor() {
-  const [membership, setMembership] = useAdminData(STORAGE_KEYS.membership, buildDefaultMembershipData());
+  const [membership, setMembership, saveMembership, membershipStatus] = useAdminData(STORAGE_KEYS.membership, buildDefaultMembershipData());
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const normalizedMembership = normalizeMembershipAdminState(membership);
 
   const updatePlan = (index, updated) => {
@@ -700,23 +787,34 @@ function MembershipEditor() {
     setMembership({ ...normalizedMembership, packages });
   };
 
-  const handleSave = () => {
-    localStorage.setItem(STORAGE_KEYS.membership, JSON.stringify(normalizedMembership));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    try {
+      setSaveError("");
+      await saveMembership(normalizedMembership);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      setSaveError(error.message || "Failed to save membership.");
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (!window.confirm("Reset Membership to defaults?")) return;
     const defaults = buildDefaultMembershipData();
     setMembership(defaults);
-    localStorage.setItem(STORAGE_KEYS.membership, JSON.stringify(defaults));
+    try {
+      setSaveError("");
+      await saveMembership(defaults);
+    } catch (error) {
+      setSaveError(error.message || "Failed to reset membership.");
+    }
   };
 
   return (
     <div className="admin-section">
       <h3>Membership</h3>
       <p className="admin-hint">Edit membership cards and the membership package rows shown on the public site.</p>
+      {membershipStatus.loadError && <p className="admin-error">{membershipStatus.loadError}</p>}
 
       {normalizedMembership.plans.map((plan, i) => (
         <MembershipPlanEditor
@@ -745,6 +843,7 @@ function MembershipEditor() {
           Reset membership
         </button>
       </div>
+      {saveError && <p className="admin-error">{saveError}</p>}
     </div>
   );
 }
@@ -921,11 +1020,12 @@ function PortfolioItemEditor({ item, onChange, onRemove }) {
 }
 
 function PortfolioManager() {
-  const [portfolioState, setPortfolioState] = useAdminData(STORAGE_KEYS.portfolio, {
+  const [portfolioState, setPortfolioState, savePortfolio, portfolioStatus] = useAdminData(STORAGE_KEYS.portfolio, {
     visible: true,
     items: defaultPortfolio
   });
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const normalizedPortfolio = normalizePortfolioConfig(portfolioState);
   const normalizedItems = normalizedPortfolio.items;
 
@@ -978,13 +1078,18 @@ function PortfolioManager() {
     });
   };
 
-  const handleSave = () => {
-    localStorage.setItem(STORAGE_KEYS.portfolio, JSON.stringify({
-      visible: normalizedPortfolio.visible !== false,
-      items: normalizedItems
-    }));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    try {
+      setSaveError("");
+      await savePortfolio({
+        visible: normalizedPortfolio.visible !== false,
+        items: normalizedItems
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      setSaveError(error.message || "Failed to save portfolio.");
+    }
   };
 
   return (
@@ -994,6 +1099,7 @@ function PortfolioManager() {
       <p className="admin-hint" style={{ marginTop: "-0.9rem" }}>
         You can paste image URLs or upload files directly.
       </p>
+      {portfolioStatus.loadError && <p className="admin-error">{portfolioStatus.loadError}</p>}
 
       <label className="admin-checkbox" style={{ marginBottom: "1rem" }}>
         <input
@@ -1019,6 +1125,7 @@ function PortfolioManager() {
           {saved ? "Saved!" : "Save portfolio"}
         </button>
       </div>
+      {saveError && <p className="admin-error">{saveError}</p>}
     </div>
   );
 }
@@ -1027,16 +1134,24 @@ function PortfolioManager() {
 export default function AdminPanel() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [tab, setTab] = useState("video");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthed(true);
+
+    try {
+      setIsLoggingIn(true);
       setError("");
-    } else {
-      setError("Wrong password");
+      await verifyAdminPassword(password);
+      setAdminPassword(password);
+      setAuthed(true);
+    } catch (error) {
+      setError(error.message === "Unauthorized" ? "Wrong password" : error.message);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -1056,48 +1171,52 @@ export default function AdminPanel() {
             autoFocus
           />
           {error && <p className="admin-error">{error}</p>}
-          <button type="submit" className="admin-btn" style={{ width: "100%", marginTop: 12 }}>Login</button>
+          <button type="submit" className="admin-btn" style={{ width: "100%", marginTop: 12 }} disabled={isLoggingIn}>
+            {isLoggingIn ? "Checking..." : "Login"}
+          </button>
         </form>
       </div>
     );
   }
 
   return (
-    <div className="admin-page">
-      <header className="admin-header">
-        <div className="admin-header-inner">
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img src="/logo_white.webp" alt="Kaizen Detailers" style={{ width: 32 }} />
-            <h1>Kaizen Admin</h1>
+    <AdminPasswordContext.Provider value={adminPassword}>
+      <div className="admin-page">
+        <header className="admin-header">
+          <div className="admin-header-inner">
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img src="/logo_white.webp" alt="Kaizen Detailers" style={{ width: 32 }} />
+              <h1>Kaizen Admin</h1>
+            </div>
+            <a href="/" className="admin-btn admin-btn-outline" style={{ fontSize: "0.85rem" }}>Back to site</a>
           </div>
-          <a href="/" className="admin-btn admin-btn-outline" style={{ fontSize: "0.85rem" }}>Back to site</a>
-        </div>
-      </header>
+        </header>
 
-      <nav className="admin-tabs">
-        {[
-          { id: "video", label: "Hero Video" },
-          { id: "pricing", label: "Pricing" },
-          { id: "membership", label: "Membership" },
-          { id: "portfolio", label: "Portfolio" },
-        ].map(t => (
-          <button
-            key={t.id}
-            className={`admin-tab ${tab === t.id ? "active" : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
+        <nav className="admin-tabs">
+          {[
+            { id: "video", label: "Hero Video" },
+            { id: "pricing", label: "Pricing" },
+            { id: "membership", label: "Membership" },
+            { id: "portfolio", label: "Portfolio" },
+          ].map(t => (
+            <button
+              key={t.id}
+              className={`admin-tab ${tab === t.id ? "active" : ""}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
 
-      <main className="admin-main">
-        {tab === "video" && <HeroVideoEditor />}
-        {tab === "pricing" && <PricingEditor />}
-        {tab === "membership" && <MembershipEditor />}
-        {tab === "portfolio" && <PortfolioManager />}
-      </main>
-    </div>
+        <main className="admin-main">
+          {tab === "video" && <HeroVideoEditor />}
+          {tab === "pricing" && <PricingEditor />}
+          {tab === "membership" && <MembershipEditor />}
+          {tab === "portfolio" && <PortfolioManager />}
+        </main>
+      </div>
+    </AdminPasswordContext.Provider>
   );
 }
 

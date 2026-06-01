@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { registerAdminContentRoutes } from "./admin-content-routes.mjs";
 import { registerAltegioRoutes } from "./altegio-routes.mjs";
 
 dotenv.config();
@@ -13,8 +14,9 @@ const distDir = path.resolve(rootDir, "dist");
 const port = Number(process.env.PORT || 5555);
 
 const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "15mb" }));
 
+registerAdminContentRoutes(app);
 registerAltegioRoutes(app);
 app.use(
   express.static(distDir, {

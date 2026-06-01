@@ -1,11 +1,10 @@
-const PRECACHE = "kaizen-precache-v5";
-const RUNTIME = "kaizen-runtime-v5";
+const PRECACHE = "kaizen-precache-v6";
+const RUNTIME = "kaizen-runtime-v6";
 
 const WARM_ASSETS = [
   "/logo_white.webp",
   "/UAEflag.webp",
   "/dubai.webp",
-  "/hero-50s.mp4",
   "/rolls1.webp",
   "/rolls2.webp",
   "/moto.webp",
@@ -124,7 +123,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   const destination = request.destination;
-  const staticDestinations = new Set(["script", "style", "image", "font", "video"]);
+  const staticDestinations = new Set(["script", "style", "image", "font"]);
   if (staticDestinations.has(destination)) {
     event.respondWith(cacheFirst(request));
   }

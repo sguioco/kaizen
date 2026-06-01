@@ -1,3 +1,5 @@
 node_modules
 source-assets
 .dev-server*.log
+.env
+server-data
